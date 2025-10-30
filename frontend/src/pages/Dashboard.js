@@ -85,7 +85,7 @@ const Dashboard = () => {
               <Brain className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              DocIntel Intelligence
+            Redline AI
             </h1>
           </div>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">

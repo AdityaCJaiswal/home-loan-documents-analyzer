@@ -1,12 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view 
 from django.utils.decorators import method_decorator
 from rest_framework import status
 from rest_framework.generics import DestroyAPIView, RetrieveAPIView, ListAPIView
 from .models import Document, Chunk, ChatSession, ChatMessage, DocumentChunk
-from .rag_utils import process_document, doc_embeddings_map, model, index
+# --- THIS IS THE FIX ---
+from .rag_utils import process_document, doc_embeddings_map, model, index, extract_text
+# --- END FIX ---
 from .serializers import ChatSessionSerializer, DocumentChunkSerializer, DocumentSerializer
 import numpy as np
 import os
@@ -20,12 +22,48 @@ import re
 import functools
 from django.http import JsonResponse
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 gemini_model = genai.GenerativeModel("gemini-2.0-flash")
 
 
 logger = logging.getLogger(__name__)
+
+LOCAL_LLM_URL = "http://localhost:1234/v1/chat/completions"
+
+def call_local_llm(prompt):
+    """
+    Helper function to call the local LLM (Mistral)
+    Assumes an OpenAI-compatible API endpoint.
+    """
+    try:
+        payload = {
+            "model": "mistral-local", # This name is often a placeholder for local servers
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.1, # Low temp for deterministic JSON output
+            "stream": False
+        }
+        headers = {"Content-Type": "application/json"}
+        
+        # Set a reasonable timeout (e.g., 2 minutes) for the LLM to respond
+        response = requests.post(LOCAL_LLM_URL, json=payload, headers=headers, timeout=120) 
+        response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+
+        json_response = response.json()
+        content = json_response['choices'][0]['message']['content']
+        return content.strip()
+
+    except requests.exceptions.ConnectionError:
+        logger.error(f"--- [LLM ERROR] Connection refused. Is the local server running at {LOCAL_LLM_URL}? ---")
+        raise Exception(f"ConnectionError: Cannot connect to local LLM at {LOCAL_LLM_URL}.")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"--- [LLM ERROR] Request failed: {str(e)} ---")
+        raise Exception(f"RequestException: {str(e)}")
+    except (KeyError, IndexError) as e:
+            logger.error(f"--- [LLM ERROR] Unexpected JSON response format from local LLM: {response.text} ---")
+            raise Exception(f"JSONParseError: Invalid response format from LLM. {e}")
+# --- END NEW HELPER FUNCTION ---
 
 # List all documents, ordered by creation date
 class DocumentListView(ListAPIView):
@@ -173,16 +211,17 @@ Instructions:
 
 Answer:"""
 
-        logger.info(f"Sending request to LM Studio with context length: {len(context)}")
+        logger.info(f"Sending request to Local LLM with context length: {len(context)}")
         
-        # Get response from LM Studio
+        # --- MODIFIED: Get response from Local LLM ---
         try:
-            response = gemini_model.generate_content(prompt)
-            answer = response.text.strip()
+            answer = call_local_llm(prompt)
             logger.info(f"Generated answer length: {len(answer)}")
         except Exception as e:
-            logger.error(f"Gemini API error: {str(e)}")
-            return Response({"error": f"Gemini API error: {str(e)}"}, status=500)
+            logger.error(f"Local LLM error in ask_question: {str(e)}")
+            # Return the specific error message from the helper
+            return Response({"error": f"LLM Error: {str(e)}"}, status=500)
+        # --- END MODIFICATION ---
 
         # Create or get chat session and save message
         session_id = request.data.get("session_id")
@@ -360,11 +399,12 @@ You are a senior loan analysis expert. Your task is to find one specific risk in
 **Respond ONLY with the JSON object and nothing else.**
 """
 
-        # 5. Call the LLM (using YOUR configured Gemini model)
+        # 5. Call the LLM (using your configured Local LLM)
         try:
             logger.info(f"--- [Interceptor] Sending prompt for risk: {risk['name']} ---")
-            response = gemini_model.generate_content(prompt)
-            response_text = response.text.strip()
+            # --- MODIFIED: Call Local LLM ---
+            response_text = call_local_llm(prompt)
+            # --- END MODIFICATION ---
 
             # 6. [CRITICAL STEP] Parse the LLM's JSON response
             # LLMs love to add markdown or other text. We must extract *only* the JSON.
@@ -383,7 +423,8 @@ You are a senior loan analysis expert. Your task is to find one specific risk in
             logger.error(f"Raw Response was: {response_text}")
             final_report.append({"found": False, "risk_name": risk['name'], "error": "AI response was not valid JSON."})
         except Exception as e:
-            logger.error(f"--- [ERROR] Gemini call failed for risk {risk['name']}: {e} ---")
+            # --- MODIFIED: Error Logging ---
+            logger.error(f"--- [ERROR] Local LLM call failed for risk {risk['name']}: {e} ---")
             final_report.append({"found": False, "risk_name": risk['name'], "error": str(e)})
 
     # 7. Send the full report back to React
@@ -392,7 +433,83 @@ You are a senior loan analysis expert. Your task is to find one specific risk in
 # -----------------------------------------------------------------
 # --- [NEW CODE END] ---
 # -----------------------------------------------------------------
+# THIS IS YOUR *PRODUCTION* ENDPOINT (TAKES DOCUMENT ID)
+@api_view(['POST'])
+def analyze_risk_by_id(request, document_id):
+    """
+    Runs the Risk Interceptor on a pre-uploaded document using its ID.
+    """
+    try:
+        # 1. Get the document
+        document = get_object_or_404(Document, pk=document_id)
+        
+        # 2. Get the file path
+        if not document.file or not document.file.path:
+            return JsonResponse({'error': 'File not found for this document.'}, status=404)
+        
+        # 3. Extract text from the file using your function from rag_utils.py
+        logger.info(f"--- [Interceptor] Extracting text from: {document.file.path} ---")
+        loan_text = extract_text(document) # <--- THIS LINE IS NOW CORRECT
+        if not loan_text:
+            return JsonResponse({'error': 'Could not extract text from file.'}, status=500)
 
+        # 4. Load the "brain"
+        risks = load_risk_knowledge_base() # This is the function we already built
+        if not risks:
+            return JsonResponse({'error': 'Risk knowledge base is empty.'}, status=500)
+
+        final_report = []
+
+        # 5. Run the INTERCEPTOR LOOP
+        for risk in risks:
+            prompt = f"""
+You are a senior loan analysis expert. Your task is to find one specific risk in the provided loan agreement.
+**The Risk to Find:** {risk['name']}
+**Definition of this Risk:** {risk.get('description', 'N/A')}
+**Why it's Harmful:** {risk.get('harmful', 'N/A')}
+**Keywords to look for:** {risk.get('keywords', 'N/A')}
+**The Loan Agreement:**
+---
+{loan_text}
+---
+**Your Task:**
+1. Read the entire Loan Agreement.
+2. Determine if a clause matching the **Risk to Find** exists.
+3. If it **DOES NOT** exist, respond with: {{"found": false, "risk_name": "{risk['name']}"}}
+4. If it **DOES** exist, respond with a JSON object containing:
+    * "found": true
+    * "risk_name": "{risk['name']}"
+    * "clause_text": "[The EXACT quote from the agreement, word-for-word]"
+    * "analysis": "[A brief, simple explanation of why this specific clause is the risk, using the provided definition]"
+**Respond ONLY with the JSON object and nothing else.**
+"""
+            try:
+                logger.info(f"--- [Interceptor ID] Sending prompt for risk: {risk['name']} ---")
+                # --- MODIFIED: Call Local LLM ---
+                response_text = call_local_llm(prompt)
+                # --- END MODIFICATION ---
+                match = re.search(r'\{.*\}', response_text, re.DOTALL)
+                if not match:
+                    raise json.JSONDecodeError("No JSON object found in LLM response", response_text, 0)
+                
+                json_string = match.group(0)
+                result_json = json.loads(json_string)
+                final_report.append(result_json)
+
+            except Exception as e:
+                # --- MODIFIED: Error Logging ---
+                logger.error(f"--- [ERROR] Local LLM call failed for risk {risk['name']}: {e} ---")
+                final_report.append({"found": False, "risk_name": risk['name'], "error": str(e)})
+
+        # 6. Send the full report back to React
+        return JsonResponse({'report': final_report})
+
+    except Document.DoesNotExist:
+        return JsonResponse({'error': 'Document not found.'}, status=404)
+    except Exception as e:
+        logger.error(f"--- [ERROR] Failed to analyze risk by ID: {e} ---")
+        return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=500)
+# --- [NEW FUNCTION END] ---
 
 # -----------------------------------------------------------------
 # [NO CHANGE] YOUR EXISTING VIEWS ARE FINE
@@ -410,6 +527,7 @@ class DocumentChunkListView(ListAPIView):
     def get_queryset(self):
         doc_id = self.kwargs.get("document_id")
         return DocumentChunk.objects.filter(document_id=doc_id).order_by('chunk_index')
+
 
 # Get chat history for a document
 @api_view(['GET'])

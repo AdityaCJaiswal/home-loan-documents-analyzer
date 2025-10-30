@@ -9,7 +9,8 @@ from .views import (
     ChatSessionDetailView, 
     DocumentChunkListView,
     ask_question, 
-    chat_history
+    chat_history,
+    analyze_document_risks
 )
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
@@ -35,7 +36,7 @@ urlpatterns = [
     # --- YOUR NEW DEMO ENDPOINT ---
     # This line now works because we imported 'views'
     path('analyze-risks/', views.analyze_document_risks, name='analyze-risks'),
-    
+    path('document/<int:document_id>/analyze-risk/', views.analyze_risk_by_id, name='analyze-risk-by-id'),
     # Chat functionality
     path('ask/', ask_question, name='ask-question'),
     path('sessions/<int:pk>/', ChatSessionDetailView.as_view(), name='chat-session-detail'),
