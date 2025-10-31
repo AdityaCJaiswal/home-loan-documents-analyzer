@@ -7,8 +7,8 @@ Redline AI is a full-stack web application designed for the high-stakes analysis
 1. **Comprehension Engine:** A flexible, RAG-based chat assistant that allows you to "talk" to your documents and ask specific questions.
 2. **Interrogation Engine:** A proactive "Interceptor" that scans documents against a human-curated knowledge base to find and flag predatory or harmful clauses *before* they become a problem.
 
-![Redline AI Dashboard](https://i.imgur.com/your-screenshot-url.png)  
-*(**Note:** Upload your `Screenshot 2025-10-31 033650.png` to a service like Imgur and replace the URL above to showcase your UI.)*
+![Redline AI Dashboard](ui_ss/home.png)  
+![Redline AI Dashboard](ui_ss/chat.png)  
 
 ---
 
@@ -217,7 +217,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/your-username/RedlineAI/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://github.com/AdityaCJaiswal/home-loan-documents-analyzer/issues) on GitHub.
 
 ---
 
