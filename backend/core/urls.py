@@ -1,5 +1,5 @@
 from django.urls import path
-# Import 'views' module itself, or add 'analyze_document_risks' to the list
+# Import 'views' module itself
 from . import views 
 from .views import (
     DocumentUploadView,
@@ -33,16 +33,16 @@ urlpatterns = [
     path('documents/<int:pk>/delete/', DocumentDeleteView.as_view(), name='document-delete'),
     path('documents/<int:document_id>/chunks/', DocumentChunkListView.as_view(), name='document-chunks'),
     
-    # --- YOUR NEW DEMO ENDPOINT ---
-    # This line now works because we imported 'views'
-    path('analyze-risks/', views.analyze_document_risks, name='analyze-risks'),
-    path('document/<int:document_id>/analyze-risk/', views.analyze_risk_by_id, name='analyze-risk-by-id'),
+    # --- Interceptor Endpoints ---
+    path('analyze-risks/', views.analyze_document_risks, name='analyze-risks'), # The demo one
+    path('document/<int:document_id>/analyze-risk/', views.analyze_risk_by_id, name='analyze-risk-by-id'), # The production one
+    
     # Chat functionality
     path('ask/', ask_question, name='ask-question'),
     path('sessions/<int:pk>/', ChatSessionDetailView.as_view(), name='chat-session-detail'),
     path('documents/<int:document_id>/chat-history/', chat_history, name='chat-history'),
     
     # Security
-    path("api/csrf/", csrf_cookie_view),
+    path("api/csrf/", csrf_cookie_view), 
     path('csrf/', csrf_token_view),
 ]

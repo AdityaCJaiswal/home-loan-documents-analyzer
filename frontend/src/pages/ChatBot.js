@@ -12,17 +12,13 @@ import {
   CheckCircle,
   User,
   Bot,
-  ShieldAlert, // <-- NEW ICON
-  ShieldCheck, // <-- NEW ICON
-  AlertTriangle
+  ShieldAlert,
+  ShieldCheck,
+  AlertTriangle,
+  Scale
 } from 'lucide-react';
 import axios from 'axios';
-import Cookies from 'js-cookie'; // <-- NEW IMPORT for API calls
-
-// ==================================================================
-// == NEW COMPONENT: RISK REPORT PANEL
-// ==================================================================
-// We define this here to keep it all in one file for you.
+import Cookies from 'js-cookie';
 
 const RiskReportPanel = ({ documentId }) => {
   const [report, setReport] = useState(null);
@@ -35,15 +31,14 @@ const RiskReportPanel = ({ documentId }) => {
     setError(null);
 
     try {
-      // This is the NEW backend endpoint that analyzes by document ID
       const response = await axios.post(
         `http://localhost:8000/api/document/${documentId}/analyze-risk/`,
-        {}, // Send empty data for a POST request
+        {},
         {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': Cookies.get('csrftoken'), // Pass the CSRF token
+            'X-CSRFToken': Cookies.get('csrftoken'),
           },
         }
       );
@@ -60,97 +55,130 @@ const RiskReportPanel = ({ documentId }) => {
   const passedRisks = report?.filter(r => !r.found) || [];
 
   return (
-    <div className="p-6 h-full flex flex-col overflow-y-auto">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-        Risk Interceptor Report
-      </h3>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-        This tool scans the document against our "Risk Knowledge Base"
-        to find known predatory or harmful clauses.
-      </p>
+    <div className="p-6 h-full flex flex-col overflow-y-auto scrollbar-legal">
+      <div className="mb-6">
+        <h3 className="text-2xl font-bold text-blue-800 mb-2 flex items-center">
+          <ShieldAlert className="h-6 w-6 mr-2" />
+          Risk Interceptor Report
+        </h3>
+        <p className="text-sm text-gray-600 leading-relaxed">
+          Professional risk analysis powered by our curated legal knowledge base. 
+          Identifies predatory clauses and potential legal issues in your document.
+        </p>
+      </div>
       
       {!report && !isLoading && !error && (
         <button
           onClick={runAnalysis}
-          className="w-full px-6 py-4 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+          className="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
         >
-          <ShieldAlert className="h-5 w-5" />
-          <span>Run Risk Analysis</span>
+          <ShieldAlert className="h-6 w-6" />
+          <span>Run Comprehensive Risk Analysis</span>
         </button>
       )}
 
       {isLoading && (
-        <div className="text-center py-12 flex flex-col items-center">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-blue-600" />
-          <p className="mt-4 text-lg font-medium text-gray-700 dark:text-gray-300">
-            Running Interceptor Loop...
+        <div className="text-center py-16 flex flex-col items-center">
+          <div className="relative">
+            <div className="spinner-legal h-16 w-16 mb-6"></div>
+          </div>
+          <p className="text-xl font-semibold text-blue-800 mb-2">
+            Analyzing Document...
           </p>
-          <p className="text-gray-500 dark:text-gray-400">
-            This may take a moment as the AI scans the full document.
+          <p className="text-gray-600">
+            Our AI is carefully reviewing your document against our legal knowledge base
           </p>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-3">
-          <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
-          <p className="text-red-800 dark:text-red-200">{error}</p>
+        <div className="p-5 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start space-x-3">
+          <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-red-800 mb-1">Analysis Error</p>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
         </div>
       )}
 
       {report && (
-        <div className="space-y-8 animate-in fade-in duration-500">
-          {/* --- RED FLAGS --- */}
+        <div className="space-y-8 animate-fade-in-scale">
+          {/* Critical Risks Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-red-600 dark:text-red-400 flex items-center space-x-2">
-              <ShieldAlert className="h-6 w-6" />
-              <span>{foundRisks.length} Critical Risk(s) Found</span>
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold text-red-700 flex items-center space-x-2">
+                <ShieldAlert className="h-7 w-7" />
+                <span>Critical Risks Detected</span>
+              </h3>
+              <span className="px-4 py-2 bg-red-100 text-red-800 rounded-full font-bold text-lg border-2 border-red-200">
+                {foundRisks.length}
+              </span>
+            </div>
+            
             {foundRisks.length > 0 ? (
-              foundRisks.map((risk, index) => (
-                <div key={index} className="group relative bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
-                  <strong className="text-red-800 dark:text-red-200">{risk.risk_name}</strong>
-                  <p className="text-sm text-red-700 dark:text-red-300 mt-2">
-                    <strong>Clause Found:</strong> "{risk.clause_text}"
-                  </p>
-                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                    <strong>Analysis:</strong> {risk.analysis}
-                  </p>
-                </div>
-              ))
+              <div className="space-y-4">
+                {foundRisks.map((risk, index) => (
+                  <div key={index} className="group relative bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-600 p-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-start justify-between mb-3">
+                      <strong className="text-lg text-red-900 font-bold flex items-center">
+                        <AlertTriangle className="h-5 w-5 mr-2" />
+                        {risk.risk_name}
+                      </strong>
+                      <span className="badge-risk-critical">HIGH RISK</span>
+                    </div>
+                    <div className="space-y-3 pl-7">
+                      <div className="bg-white/70 p-3 rounded border border-red-200">
+                        <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-1">Clause Identified:</p>
+                        <p className="text-sm text-red-800 italic">"{risk.clause_text}"</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-1">Analysis:</p>
+                        <p className="text-sm text-red-800 leading-relaxed">{risk.analysis}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="text-gray-600 dark:text-gray-400 text-sm">No critical red flags identified from the Knowledge Base.</p>
+              <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-lg">
+                <p className="text-green-800 font-medium flex items-center">
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  No critical risks identified in this document
+                </p>
+              </div>
             )}
           </div>
 
-          {/* --- GREEN CHECKS --- */}
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-green-600 dark:text-green-400 flex items-center space-x-2">
-              <ShieldCheck className="h-6 w-6" />
-              <span>{passedRisks.length} Check(s) Passed</span>
-            </h3>
-            <ul className="list-disc list-inside pl-2 space-y-1">
-              {passedRisks.length > 0 ? (
-                passedRisks.map((risk, index) => (
-                  <li key={index} className="text-sm text-gray-600 dark:text-gray-400">
-                    {risk.risk_name} (Not Found)
+          {/* Passed Checks Section */}
+          <div className="space-y-3 bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-green-800 flex items-center space-x-2">
+                <ShieldCheck className="h-6 w-6" />
+                <span>Compliance Checks Passed</span>
+              </h3>
+              <span className="px-4 py-2 bg-green-200 text-green-900 rounded-full font-bold text-lg border-2 border-green-300">
+                {passedRisks.length}
+              </span>
+            </div>
+            
+            {passedRisks.length > 0 ? (
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {passedRisks.map((risk, index) => (
+                  <li key={index} className="flex items-center space-x-2 bg-white/70 p-3 rounded-lg border border-green-200">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-green-900 font-medium">{risk.risk_name}</span>
                   </li>
-                ))
-              ) : (
-                 <p className="text-gray-600 dark:text-gray-400 text-sm">No checks were passed.</p>
-              )}
-            </ul>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-green-700 text-sm">No compliance checks were performed on this document.</p>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 };
-
-
-// ==================================================================
-// == YOUR ORIGINAL COMPONENT, NOW MODIFIED
-// ==================================================================
 
 export default function EnhancedChat() {
   const navigate = useNavigate();
@@ -159,10 +187,7 @@ export default function EnhancedChat() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   
-  // --- NEW STATE ---
-  const [mode, setMode] = useState('chat'); // 'chat' or 'risk'
-
-  // State management
+  const [mode, setMode] = useState('chat');
   const [document, setDocument] = useState(null);
   const [chunks, setChunks] = useState([]);
   const [highlightIndexes, setHighlightIndexes] = useState([]);
@@ -175,19 +200,16 @@ export default function EnhancedChat() {
   const [error, setError] = useState(null);
   const [documentLoading, setDocumentLoading] = useState(true);
 
-  // Auto-scroll to bottom of messages
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    // Only scroll if in chat mode
     if (mode === 'chat') {
       scrollToBottom();
     }
   }, [messages, mode]);
 
-  // Load document and chat data
   useEffect(() => {
     if (!docId) {
       navigate('/library');
@@ -199,15 +221,12 @@ export default function EnhancedChat() {
         setDocumentLoading(true);
         setError(null);
 
-        // Load document details
         const docResponse = await axios.get(`http://localhost:8000/api/documents/${docId}/`);
         setDocument(docResponse.data);
 
-        // Load document chunks
         const chunksResponse = await axios.get(`http://localhost:8000/api/documents/${docId}/chunks/`);
         setChunks(chunksResponse.data.map(c => c.content));
 
-        // Load chat history
         const historyResponse = await axios.get(`http://localhost:8000/api/documents/${docId}/chat-history/`);
         if (historyResponse.data.length > 0) {
           const latestSession = historyResponse.data[0];
@@ -239,7 +258,6 @@ export default function EnhancedChat() {
     loadDocumentData();
   }, [docId, navigate]);
 
-  // Handle sending messages
   const handleSend = async () => {
     if (!input.trim() || loading) return;
 
@@ -262,10 +280,10 @@ export default function EnhancedChat() {
         question: currentInput,    
         session_id: sessionId
       }, {
-        withCredentials: true, // Send cookies
+        withCredentials: true,
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': Cookies.get('csrftoken'), // Pass the CSRF token
+          'X-CSRFToken': Cookies.get('csrftoken'),
         },
       });
 
@@ -279,7 +297,6 @@ export default function EnhancedChat() {
       setMessages(prev => [...prev, botMessage]);
       setSessionId(response.data.session_id);
 
-      // Update highlights if provided
       if (response.data.highlight_indexes) {
         setHighlightIndexes(response.data.highlight_indexes);
       }
@@ -289,7 +306,7 @@ export default function EnhancedChat() {
       const errorMessage = { 
         id: `error-${Date.now()}`,
         user: false, 
-        text: "Sorry, I encountered an error while processing your question. Please try again.",
+        text: "I apologize, but I encountered an error while analyzing your question. Please try again.",
         timestamp: new Date(),
         isError: true
       };
@@ -300,7 +317,6 @@ export default function EnhancedChat() {
     }
   };
 
-  // Handle key press
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -308,7 +324,6 @@ export default function EnhancedChat() {
     }
   };
 
-  // Copy message to clipboard
   const copyToClipboard = async (text, messageId) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -319,29 +334,29 @@ export default function EnhancedChat() {
     }
   };
 
-  // Loading state
   if (documentLoading) {
     return (
-      <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900 shadow rounded-lg flex items-center justify-center h-[90vh]">
+      <div className="max-w-6xl mx-auto p-6 bg-white shadow-xl rounded-2xl flex items-center justify-center h-[90vh]">
         <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600 mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading document...</p>
+          <div className="spinner-legal h-12 w-12 mx-auto mb-6"></div>
+          <p className="text-xl font-semibold text-[#1e3a5f]">Loading Document...</p>
+          <p className="text-gray-600 mt-2">Preparing your legal analysis platform</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error && !document) {
     return (
-      <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-900 shadow rounded-lg flex items-center justify-center h-[90vh]">
+      <div className="max-w-6xl mx-auto p-6 bg-white shadow-xl rounded-2xl flex items-center justify-center h-[90vh]">
         <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <p className="text-xl font-semibold text-red-700 mb-4">{error}</p>
           <button 
             onClick={() => navigate('/library')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="btn-legal-primary"
           >
-            Back to Library
+            Return to Library
           </button>
         </div>
       </div>
@@ -349,24 +364,26 @@ export default function EnhancedChat() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 bg-white dark:bg-gray-900 shadow-lg rounded-lg flex flex-col h-[95vh]">
-      {/* Enhanced Header */}
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="max-w-7xl mx-auto p-4 bg-white shadow-2xl rounded-2xl flex flex-col h-[95vh] border-2 border-gray-200">
+      {/* Professional Header */}
+      <div className="flex items-center justify-between mb-6 pb-5 border-b-2 border-gray-200">
         <div className="flex items-center">
           <button 
             onClick={() => navigate('/library')} 
-            className="p-2 mr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 mr-3 text-gray-500 hover:text-blue-700 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={22} />
           </button>
           <div className="flex items-center">
-            <FileText className="text-blue-600 mr-2" size={24} />
+            <div className="p-3 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-xl mr-3">
+              <Scale className="text-white h-6 w-6" />
+            </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-[#1e3a5f]">
                 {document?.title || 'Loading...'}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Interactive Document Analysis
+              <p className="text-sm text-gray-600 font-medium">
+                Professional Legal Document Analysis Platform
               </p>
             </div>
           </div>
@@ -375,7 +392,7 @@ export default function EnhancedChat() {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsPreviewMaximized(!isPreviewMaximized)}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 text-gray-500 hover:text-blue-700 hover:bg-gray-100 rounded-full transition-colors"
             title={isPreviewMaximized ? "Restore layout" : "Maximize preview"}
           >
             {isPreviewMaximized ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
@@ -384,46 +401,48 @@ export default function EnhancedChat() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-1 overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+      <div className="flex flex-1 overflow-hidden border-2 border-gray-200 rounded-xl">
         {/* Document Preview Panel */}
-        <div className={`${isPreviewMaximized ? 'w-full' : 'w-1/2'} border-r border-gray-200 dark:border-gray-700 overflow-y-auto bg-gray-50 dark:bg-gray-800 transition-all duration-300`}>
-          <div className="sticky top-0 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 z-10">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
-              <FileText className="mr-2 text-blue-600" size={20} />
-              Document Preview
+        <div className={`${isPreviewMaximized ? 'w-full' : 'w-1/2'} border-r-2 border-gray-200 overflow-y-auto bg-gradient-to-br from-gray-50 to-gray-100 transition-all duration-300 scrollbar-legal`}>
+          <div className="sticky top-0 bg-white border-b-2 border-gray-200 p-5 z-10 shadow-sm">
+            <h3 className="text-xl font-bold text-blue-800 flex items-center">
+              <FileText className="mr-2 text-cyan-600" size={22} />
+              Document Content
             </h3>
             {highlightIndexes.length > 0 && mode === 'chat' && (
-              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                {highlightIndexes.length} relevant section(s) highlighted
+              <p className="text-sm text-cyan-700 font-medium mt-2 flex items-center">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                {highlightIndexes.length} relevant section{highlightIndexes.length !== 1 ? 's' : ''} highlighted
               </p>
             )}
           </div>
           
-          <div className="p-4">
+          <div className="p-6">
             {chunks.length > 0 ? (
               chunks.map((chunk, idx) => (
                 <div
                   key={idx}
-                  className={`mb-4 p-4 rounded-lg transition-all duration-300 ${
+                  className={`mb-5 p-5 rounded-xl transition-all duration-300 ${
                     highlightIndexes.includes(idx) && mode === 'chat'
-                      ? 'bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500 shadow-md transform scale-[1.02]'
-                      : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:shadow-sm'
+                      ? 'bg-yellow-50 border-l-4 border-yellow-500 shadow-lg transform scale-[1.01]'
+                      : 'bg-white border border-gray-200 hover:shadow-md hover:border-gray-300'
                   }`}
                 >
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-serif">
                     {chunk}
                   </p>
                   {highlightIndexes.includes(idx) && mode === 'chat' && (
-                    <div className="mt-2 text-xs text-yellow-700 dark:text-yellow-400 font-medium">
-                      ✨ Relevant to your question
+                    <div className="mt-3 flex items-center text-xs text-yellow-700 font-semibold">
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      Relevant to your query
                     </div>
                   )}
                 </div>
               ))
             ) : (
-              <div className="text-center py-12">
-                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="text-center py-16">
+                <FileText className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                <p className="text-gray-600 font-medium">
                   No preview available for this document.
                 </p>
               </div>
@@ -431,49 +450,50 @@ export default function EnhancedChat() {
           </div>
         </div>
 
-        {/* --- MODIFIED RIGHT-HAND PANEL --- */}
-        <div className={`${isPreviewMaximized ? 'hidden' : 'w-1/2'} flex flex-col bg-white dark:bg-gray-900 transition-all duration-300`}>
+        {/* Right Panel - Chat or Risk Analysis */}
+        <div className={`${isPreviewMaximized ? 'hidden' : 'w-1/2'} flex flex-col bg-white transition-all duration-300`}>
           
-          {/* --- NEW TAB BUTTONS --- */}
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+          {/* Tab Buttons */}
+          <div className="flex border-b-2 border-gray-200 bg-gray-50">
             <button
               onClick={() => setMode('chat')}
-              className={`flex-1 py-3 px-4 text-center font-semibold text-sm transition-all ${
+              className={`flex-1 py-4 px-6 text-center font-semibold text-sm transition-all ${
                 mode === 'chat' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  ? 'text-blue-700 border-b-4 border-blue-700 bg-white' 
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <MessageSquare className="h-5 w-5 mx-auto mb-1" />
-              Chat Assistant (RAG)
+              Legal Assistant
             </button>
             <button
               onClick={() => setMode('risk')}
-              className={`flex-1 py-3 px-4 text-center font-semibold text-sm transition-all ${
+              className={`flex-1 py-4 px-6 text-center font-semibold text-sm transition-all ${
                 mode === 'risk' 
-                  ? 'text-red-600 border-b-2 border-red-600' 
-                  : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  ? 'text-red-700 border-b-4 border-red-700 bg-white' 
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               <ShieldAlert className="h-5 w-5 mx-auto mb-1" />
-              Risk Analysis (Interceptor)
+              Risk Analysis
             </button>
           </div>
 
-          {/* --- CONDITIONAL RENDERING --- */}
+          {/* Conditional Rendering */}
           {mode === 'chat' ? (
-            // This is YOUR existing chat UI
             <>
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-6 space-y-5 scrollbar-legal">
                 {messages.length === 0 && (
-                  <div className="text-center py-12">
-                    <Bot className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-500 dark:text-gray-400 mb-2">
-                      Start a conversation about this document
+                  <div className="text-center py-16">
+                    <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mb-6">
+                      <Bot className="h-10 w-10 text-blue-700" />
+                    </div>
+                    <p className="text-lg font-semibold text-blue-800 mb-2">
+                      Professional Legal Assistant
                     </p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500">
-                      Ask questions, request summaries, or explore the content
+                    <p className="text-sm text-gray-600 max-w-md mx-auto">
+                      Ask questions about this document, request analysis, or explore specific clauses
                     </p>
                   </div>
                 )}
@@ -484,24 +504,34 @@ export default function EnhancedChat() {
                     className={`flex ${msg.user ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`max-w-[85%] group ${msg.user ? 'order-2' : 'order-1'}`}>
-                      <div className="flex items-center mb-1">
+                      <div className="flex items-center mb-2">
                         {msg.user ? (
-                          <User className="h-4 w-4 text-blue-600 mr-2" />
+                          <div className="flex items-center space-x-2">
+                            <div className="p-1.5 bg-blue-100 rounded-full">
+                              <User className="h-4 w-4 text-blue-700" />
+                            </div>
+                            <span className="text-xs font-semibold text-gray-600">You</span>
+                          </div>
                         ) : (
-                          <Bot className={`h-4 w-4 mr-2 ${msg.isError ? 'text-red-500' : 'text-green-600'}`} />
+                          <div className="flex items-center space-x-2">
+                            <div className={`p-1.5 ${msg.isError ? 'bg-red-100' : 'bg-green-100'} rounded-full`}>
+                              <Bot className={`h-4 w-4 ${msg.isError ? 'text-red-600' : 'text-green-700'}`} />
+                            </div>
+                            <span className="text-xs font-semibold text-gray-600">Legal AI</span>
+                          </div>
                         )}
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-gray-500 ml-auto">
                           {msg.timestamp.toLocaleTimeString()}
                         </span>
                       </div>
                       
                       <div
-                        className={`p-3 rounded-lg shadow-sm ${
+                        className={`p-4 rounded-xl shadow-md ${
                           msg.user
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-gradient-to-r from-blue-700 to-blue-600 text-white'
                             : msg.isError
-                            ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                            ? 'bg-red-50 text-red-800 border-2 border-red-200'
+                            : 'bg-gray-100 text-gray-900 border border-gray-200'
                         }`}
                       >
                         <p className="whitespace-pre-wrap leading-relaxed text-sm">
@@ -511,12 +541,12 @@ export default function EnhancedChat() {
                         {!msg.user && (
                           <button
                             onClick={() => copyToClipboard(msg.text, msg.id)}
-                            className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center"
+                            className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-gray-600 hover:text-gray-900 flex items-center font-medium"
                           >
                             {copiedMessageId === msg.id ? (
                               <>
                                 <CheckCircle className="h-3 w-3 mr-1" />
-                                Copied!
+                                Copied
                               </>
                             ) : (
                               <>
@@ -533,10 +563,10 @@ export default function EnhancedChat() {
 
                 {loading && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg flex items-center">
-                      <Loader2 className="h-4 w-4 animate-spin text-gray-600 dark:text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        Thinking...
+                    <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl flex items-center shadow-md">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-700 mr-3" />
+                      <span className="text-sm text-gray-700 font-medium">
+                        Analyzing document...
                       </span>
                     </div>
                   </div>
@@ -546,9 +576,10 @@ export default function EnhancedChat() {
               </div>
 
               {/* Input Area */}
-              <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+              <div className="border-t-2 border-gray-200 p-6 bg-gray-50">
                 {error && (
-                  <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-700 dark:text-red-400">
+                  <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 rounded text-sm text-red-800 flex items-center">
+                    <AlertTriangle className="h-4 w-4 mr-2" />
                     {error}
                   </div>
                 )}
@@ -556,8 +587,8 @@ export default function EnhancedChat() {
                 <div className="flex gap-3">
                   <textarea
                     ref={inputRef}
-                    className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-800 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Ask a question about this document..."
+                    className="flex-1 p-4 border-2 border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all bg-white"
+                    placeholder="Ask about specific clauses, terms, or legal implications..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
@@ -567,24 +598,23 @@ export default function EnhancedChat() {
                   <button
                     onClick={handleSend}
                     disabled={!input.trim() || loading}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center min-w-[60px]"
+                    className="px-8 py-4 bg-gradient-to-r from-blue-700 to-blue-600 text-white rounded-xl hover:from-blue-800 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg flex items-center justify-center min-w-[70px] font-semibold"
                   >
                     {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
-                      <Send className="h-4 w-4" />
+                      <Send className="h-5 w-5" />
                     )}
                   </button>
                 </div>
                 
-                <div className="flex justify-between items-center mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span>Press Enter to send, Shift+Enter for new line</span>
-                  <span>{input.length}/1000</span>
+                <div className="flex justify-between items-center mt-3 text-xs text-gray-500 font-medium">
+                  <span>Press Enter to send • Shift+Enter for new line</span>
+                  <span className={input.length > 900 ? 'text-amber-600' : ''}>{input.length}/1000</span>
                 </div>
               </div>
             </>
           ) : (
-            // This is the NEW Risk Report Panel
             <RiskReportPanel documentId={docId} />
           )}
         </div>

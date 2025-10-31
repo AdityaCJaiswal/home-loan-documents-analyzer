@@ -1,8 +1,6 @@
-// src/pages/Upload.js
-
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload as UploadIcon, File, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, Upload as UploadIcon, File, CheckCircle, AlertCircle, X, Scale, Shield, FileCheck } from 'lucide-react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -22,17 +20,17 @@ export default function Upload() {
     'text/plain': '.txt'
   };
 
-  const maxFileSize = 10 * 1024 * 1024; // 10MB
+  const maxFileSize = 10 * 1024 * 1024;
 
   const validateFile = (file) => {
     if (!file) return { valid: false, error: 'No file selected' };
     
     if (!Object.keys(acceptedFormats).includes(file.type)) {
-      return { valid: false, error: 'File type not supported. Please use PDF, DOCX, or TXT files.' };
+      return { valid: false, error: 'Unsupported file format. Please upload PDF, DOCX, or TXT files only.' };
     }
     
     if (file.size > maxFileSize) {
-      return { valid: false, error: 'File size too large. Maximum size is 10MB.' };
+      return { valid: false, error: 'File exceeds maximum size of 10MB. Please upload a smaller document.' };
     }
     
     return { valid: true };
@@ -80,7 +78,7 @@ export default function Upload() {
       }, 1500);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Upload failed. Please try again.');
+      setError(err.response?.data?.message || 'Upload failed. Please verify your connection and try again.');
     } finally {
       setUploading(false);
     }
@@ -130,37 +128,58 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-[#fafbfc] via-[#f4f6f8] to-[#e8ecf0]">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        
+        {/* Professional Header */}
         <div className="flex items-center space-x-4 mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-2 rounded-full hover:bg-white/20 transition-colors duration-200"
+            className="p-3 rounded-full hover:bg-white/50 transition-colors duration-200 border-2 border-gray-300"
           >
-            <ArrowLeft className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+            <ArrowLeft className="h-6 w-6 text-[#1e3a5f]" />
           </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Upload Document
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-1">
-              Upload your document to start chatting with AI
-            </p>
+          <div className="flex items-center space-x-3">
+            <div className="p-4 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-2xl shadow-xl">
+              <Scale className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-[#1e3a5f]">
+                Upload Legal Document
+              </h1>
+              <p className="text-gray-600 mt-1 font-medium">
+                Secure document upload for AI-powered legal analysis
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Banner */}
+        <div className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#1e3a5f] p-5 rounded-xl shadow-md">
+          <div className="flex items-start space-x-4">
+            <Shield className="h-7 w-7 text-[#1e3a5f] flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-bold text-[#1e3a5f] mb-2">Secure & Confidential</h3>
+              <p className="text-gray-700 text-sm leading-relaxed">
+                Your documents are processed with enterprise-grade security. All files are encrypted during 
+                transmission and storage. We never share your legal documents with third parties.
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Main Upload Card */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-2xl p-10 border-2 border-gray-200">
+            
             {/* Upload Area */}
             <div
-              className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+              className={`relative border-3 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
                 dragActive
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  ? 'border-[#1e3a5f] bg-blue-50'
                   : selectedFile
-                  ? 'border-green-300 bg-green-50 dark:bg-green-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  ? 'border-green-400 bg-green-50'
+                  : 'border-gray-300 hover:border-[#8b5a3c] hover:bg-gray-50'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -177,41 +196,44 @@ export default function Upload() {
               />
 
               {!selectedFile ? (
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                    <UploadIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="space-y-6">
+                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-2xl flex items-center justify-center shadow-lg">
+                    <UploadIcon className="h-12 w-12 text-white" />
                   </div>
                   <div>
-                    <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      Drop your file here, or{' '}
-                      <span className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline">
-                        browse
+                    <p className="text-2xl font-bold text-[#1e3a5f] mb-3">
+                      Drop your legal document here
+                    </p>
+                    <p className="text-gray-600 mb-2">
+                      or{' '}
+                      <span className="text-[#8b5a3c] font-semibold cursor-pointer hover:underline">
+                        browse files
                       </span>
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Supports PDF, DOCX, and TXT files up to 10MB
+                    <p className="text-sm text-gray-500 mt-4">
+                      Supported formats: PDF, DOCX, TXT • Maximum size: 10MB
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                    <File className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <div className="space-y-6">
+                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <File className="h-12 w-12 text-white" />
                   </div>
-                  <div className="flex items-center justify-center space-x-3">
-                    <div className="text-left">
-                      <p className="text-lg font-medium text-gray-900 dark:text-white">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="text-left bg-white p-4 rounded-lg border-2 border-green-200 flex-1 max-w-md">
+                      <p className="text-lg font-bold text-[#1e3a5f] truncate">
                         {selectedFile.name}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-600 mt-1 font-medium">
                         {formatFileSize(selectedFile.size)}
                       </p>
                     </div>
                     <button
                       onClick={removeFile}
-                      className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      className="p-3 rounded-full hover:bg-red-100 transition-colors border-2 border-red-200"
                     >
-                      <X className="h-5 w-5 text-gray-500" />
+                      <X className="h-6 w-6 text-red-600" />
                     </button>
                   </div>
                 </div>
@@ -220,35 +242,40 @@ export default function Upload() {
 
             {/* Upload Progress */}
             {uploading && (
-              <div className="mt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Uploading...
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-base font-semibold text-[#1e3a5f]">
+                    Processing document...
                   </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-base font-bold text-[#8b5a3c]">
                     {uploadProgress}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden border border-gray-300">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                    className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] h-3 rounded-full transition-all duration-300 ease-out"
                     style={{ width: `${uploadProgress}%` }}
                   ></div>
                 </div>
+                <p className="text-sm text-gray-600 mt-2 text-center">
+                  Encrypting and uploading your document securely
+                </p>
               </div>
             )}
 
             {/* Success Message */}
             {uploadSuccess && (
-              <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 rounded-xl">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-green-500 rounded-full">
+                    <CheckCircle className="h-8 w-8 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium text-green-800 dark:text-green-200">
-                      Upload successful!
+                    <p className="text-lg font-bold text-green-800">
+                      Upload Successful!
                     </p>
-                    <p className="text-sm text-green-600 dark:text-green-300">
-                      Redirecting to chat...
+                    <p className="text-sm text-green-700 mt-1">
+                      Redirecting to legal analysis platform...
                     </p>
                   </div>
                 </div>
@@ -257,53 +284,97 @@ export default function Upload() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
-                  <p className="text-red-800 dark:text-red-200">{error}</p>
+              <div className="mt-8 p-6 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-xl">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 bg-red-500 rounded-full flex-shrink-0">
+                    <AlertCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-red-800">Upload Error</p>
+                    <p className="text-sm text-red-700 mt-1">{error}</p>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Upload Button */}
             {selectedFile && !uploading && !uploadSuccess && (
-              <div className="mt-6">
+              <div className="mt-8">
                 <button
                   onClick={handleFileUpload}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+                  className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] hover:from-[#152d47] hover:to-[#1e3a5f] text-white font-bold py-5 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl text-lg flex items-center justify-center space-x-3"
                 >
-                  Upload Document
+                  <UploadIcon className="h-6 w-6" />
+                  <span>Upload Document for Analysis</span>
                 </button>
               </div>
             )}
 
             {/* File Format Info */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                Supported Formats:
+            <div className="mt-10 pt-8 border-t-2 border-gray-200">
+              <h3 className="text-lg font-bold text-[#1e3a5f] mb-5 flex items-center">
+                <FileCheck className="h-5 w-5 mr-2" />
+                Supported Document Formats
               </h3>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-red-500 font-semibold">PDF</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Documents
+              <div className="grid grid-cols-3 gap-6">
+                <div className="p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-red-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                      <File className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-red-800 font-bold text-center text-lg">PDF</div>
+                  <div className="text-xs text-red-700 text-center mt-1 font-medium">
+                    Portable Document
                   </div>
                 </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-blue-500 font-semibold">DOCX</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Word Files
+                <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <File className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-blue-800 font-bold text-center text-lg">DOCX</div>
+                  <div className="text-xs text-blue-700 text-center mt-1 font-medium">
+                    Word Document
                   </div>
                 </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="text-green-500 font-semibold">TXT</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Plain Text
+                <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                      <File className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-green-800 font-bold text-center text-lg">TXT</div>
+                  <div className="text-xs text-green-700 text-center mt-1 font-medium">
+                    Plain Text File
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Additional Info */}
+        <div className="max-w-3xl mx-auto mt-8 bg-white rounded-xl shadow-md border border-gray-200 p-6">
+          <h3 className="text-lg font-bold text-[#1e3a5f] mb-3 flex items-center">
+            <Scale className="h-5 w-5 mr-2" />
+            What Happens Next?
+          </h3>
+          <ol className="space-y-3 text-gray-700">
+            <li className="flex items-start space-x-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
+              <span>Your document is securely uploaded and encrypted</span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
+              <span>AI processes and analyzes the content using advanced NLP</span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
+              <span>You can chat with our legal AI about your document and run risk analysis</span>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
