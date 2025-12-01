@@ -4,8 +4,8 @@
 - **Keywords to find:** "balloon payment," "lump sum payment," "final payment," "single payment due at maturity"
 
 # Risk: Prepayment Penalty
-    - **Description:** A clause that charges the borrower a fee if they pay off the loan, or a significant portion of it, ahead of schedule.
-    - **Why it's harmful:** It traps the borrower. If interest rates drop or their financial situation improves, they are penalized for trying to save money by refinancing or paying off their debt. It's a fee for being responsible.
+- **Description:** A clause that charges the borrower a fee if they pay off the loan, or a significant portion of it, ahead of schedule.
+- **Why it's harmful:** It traps the borrower. If interest rates drop or their financial situation improves, they are penalized for trying to save money by refinancing or paying off their debt. It's a fee for being responsible.
 - **Keywords to find:** "prepayment penalty," "early repayment fee," "fee for early settlement," "penalty for early payment," "prepayment charge"
 
 # Risk: Negative Amortization

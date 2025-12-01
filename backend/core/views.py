@@ -346,11 +346,12 @@ def load_risk_knowledge_base():
 # -----------------------------------------------------------------
 #  THE "ENGINE": YOUR NEW "INTERCEPTOR" API ENDPOINT
 # -----------------------------------------------------------------
+# In backend/core/views.py
+
 @api_view(['POST'])
 def analyze_document_risks(request):
     """
-    This is your new API view for the Risk Interceptor demo.
-    It takes raw text, not a document_id.
+    Analyzes raw text for risks.
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -362,98 +363,209 @@ def analyze_document_risks(request):
     except Exception as e:
         return JsonResponse({'error': f'Invalid request body: {str(e)}'}, status=400)
 
-    # --- [NEW] GUARDRAIL 1: Check for tiny text ---
-    if len(loan_text) < 50: # Arbitrary small length
-        logger.warning(f"--- [WARN] Text too short to analyze ({len(loan_text)} chars). Skipping analysis. ---")
-        # Return an empty report
+    # --- GUARDRAIL: Check for tiny text ---
+    if len(loan_text) < 50:
+        logger.warning(f"--- [WARN] Text too short ({len(loan_text)} chars). Skipping. ---")
         risks = load_risk_knowledge_base()
         final_report = []
         for risk in risks:
-            final_report.append({"found": False, "risk_name": risk['name'], "clause_text": "", "analysis": "Text too short."})
+            final_report.append({
+                "found": False, 
+                "risk_name": risk['name'], 
+                "clause_text": "", 
+                "analysis": "Text too short."
+            })
         return JsonResponse({'report': final_report})
     
-    loan_text_lower = loan_text.lower() # Pre-calculate for efficiency
+    loan_text_lower = loan_text.lower()
     risks = load_risk_knowledge_base()
+    
     if not risks:
-        return JsonResponse({'error': 'Risk knowledge base is empty or failed to load.'}, status=500)
+        return JsonResponse({'error': 'Risk knowledge base is empty.'}, status=500)
 
     final_report = []
 
     for risk in risks:
+        # Wrap EACH risk in a try/except so one failure doesn't crash the whole report
         try:
-            # --- [THE BUG FIX IS HERE] ---
-            keyword_string = risk.get('keywords', '""') # Get the string: '"kw1", "kw2"'
-            # Robust parser: remove quotes, split by comma, strip whitespace
+            # 1. ROBUST KEYWORD PARSING
+            keyword_string = risk.get('keywords', '""')
+            # Remove quotes, split by comma, strip whitespace, ignore empty strings
             keywords_list = [k.strip().lower() for k in keyword_string.replace('"', '').split(',') if k.strip()]
-            # --- [END BUG FIX] ---
             
             found_keyword = False
             for kw in keywords_list:
-                if not kw: continue # Skip empty strings
-                if loan_text_lower.find(kw) != -1: # Already lowercase
+                if loan_text_lower.find(kw) != -1:
                     found_keyword = True
-                    logger.info(f"--- [Interceptor] Keyword '{kw}' found for risk: {risk['name']}. Sending to LLM. ---")
-                    break # Found one, no need to check others
+                    logger.info(f"--- [Interceptor] Keyword '{kw}' found for {risk['name']} ---")
+                    break 
             
             if not found_keyword:
-                logger.info(f"--- [Interceptor] No keywords found for {risk['name']}. Skipping LLM call. ---")
-                final_report.append({"found": False, "risk_name": risk['name'], "clause_text": "", "analysis": ""})
-                continue # Skip to the next risk
-            
-            # --- IF WE ARE HERE, A KEYWORD WAS FOUND. NOW WE VERIFY WITH THE LLM. ---
-            
-            prompt = f"""
-You are a senior loan analysis expert. Your task is to find one specific risk in the provided loan agreement.
-You MUST respond in a valid JSON format.
+                # Log it but don't call LLM
+                final_report.append({
+                    "found": False, 
+                    "risk_name": risk['name'], 
+                    "clause_text": "", 
+                    "analysis": ""
+                })
+                continue 
 
-**The Risk to Find:** {risk['name']}
+            # 2. SURGICAL PROMPT (If keyword found)
+            prompt = f"""
+You are a legal auditor. Your job is to extract specific clauses from a loan agreement.
+You MUST respond in valid JSON format.
+
+**Target Clause:** {risk['name']}
 **Definition:** {risk.get('description', 'N/A')}
 
-**The Loan Agreement (Excerpt with potential keywords):**
+**Document Text:**
 ---
 {loan_text}
 ---
 
-**Your Task:**
-Carefully read the agreement. Confirm if the risk defined above is truly present. Respond using the following JSON structure.
-- If the risk **IS FOUND**: set "found" to true, "clause_text" to the EXACT quote, and "analysis" to your brief analysis.
-- If the risk **IS NOT FOUND** (e.g., the keyword is used in a safe context): set "found" to false, "clause_text" to an empty string (""), and "analysis" to an empty string ("").
+**Instructions:**
+1. Search the text for a clause matching the **Target Clause** definition.
+2. If found, extract the exact text snippet.
+3. If NOT found, return found: false.
 
-**JSON Response Template (DO NOT ADD ANY TEXT OUTSIDE THE BRACES):**
+**JSON Response:**
 {{
   "found": <true_or_false>,
   "risk_name": "{risk['name']}",
-  "clause_text": "<quote_or_empty_string>",
-  "analysis": "<analysis_or_empty_string>"
+  "clause_text": "<quote_the_text_here_or_leave_empty>",
+  "analysis": "<brief_explanation_of_what_you_found>"
 }}
 """
+            # Call LLM
             response_text = call_local_llm(prompt)
-            match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if not match:
-                raise json.JSONDecodeError("No JSON object found in LLM response", response_text, 0)
-            
-            json_string = match.group(0)
-            result_json = json.loads(json_string)
-            
-            # Logical Check
-            if result_json.get("found") == True and not result_json.get("clause_text"):
-                logger.warning(f"--- [WARN] False positive detected for {risk['name']}. Overriding to 'false'. ---")
-                result_json["found"] = False
-                result_json["analysis"] = ""
+            print(f"--- [DEBUG] Risk: {risk['name']} | LLM Output: {response_text[:50]}... ---")
 
-            final_report.append(result_json)
+            # 3. JSON PARSING
+            try:
+                # Find the first '{' and the last '}'
+                json_start = response_text.find('{')
+                json_end = response_text.rfind('}') + 1
+                
+                if json_start != -1 and json_end != -1:
+                    clean_json = response_text[json_start:json_end]
+                    result_json = json.loads(clean_json)
+                else:
+                    raise ValueError("No JSON brackets found in response")
 
-        except json.JSONDecodeError:
-            logger.error(f"--- [ERROR] LLM returned invalid JSON for risk: {risk['name']} ---")
-            logger.error(f"Raw Response was: {response_text}")
-            final_report.append({"found": False, "risk_name": risk['name'], "error": "AI response was not valid JSON."})
+                # Trust the model's 'found' boolean
+                if result_json.get("found") is True:
+                    if not result_json.get("clause_text"):
+                        result_json["clause_text"] = "(Clause detected but text extraction failed.)"
+                
+                final_report.append(result_json)
+
+            except (json.JSONDecodeError, ValueError) as e:
+                logger.error(f"--- [ERROR] JSON Parse Failed for {risk['name']}: {e} ---")
+                final_report.append({
+                    "found": False, 
+                    "risk_name": risk['name'], 
+                    "error": "AI response was not valid JSON."
+                })
+
         except Exception as e:
-            logger.error(f"--- [ERROR] Local LLM call failed for risk {risk['name']}: {e} ---")
-            final_report.append({"found": False, "risk_name": risk['name'], "error": str(e)})
+            logger.error(f"--- [ERROR] General failure for risk {risk['name']}: {e} ---")
+            final_report.append({
+                "found": False, 
+                "risk_name": risk['name'], 
+                "error": str(e)
+            })
 
     return JsonResponse({'report': final_report})
 
 
+@api_view(['POST'])
+def analyze_risk_by_id(request, document_id):
+    """
+    Analyzes an uploaded document by ID using the same logic.
+    """
+    try:
+        document = get_object_or_404(Document, pk=document_id)
+        if not document.file or not document.file.path:
+            return JsonResponse({'error': 'File not found.'}, status=404)
+        
+        loan_text = extract_text(document)
+        if not loan_text:
+            return JsonResponse({'error': 'Could not extract text.'}, status=500)
+            
+        # REUSE the logic by creating a mock request (or just calling the logic directly)
+        # But for simplicity, let's copy the core logic or call the function if we refactored.
+        # Since we are pasting code, I will duplicate the core loop to ensure it works standalone.
+
+        # --- GUARDRAIL: Check for tiny text ---
+        if len(loan_text) < 50:
+            return JsonResponse({'report': [{"found": False, "risk_name": "Error", "analysis": "Text too short."}]})
+
+        loan_text_lower = loan_text.lower()
+        risks = load_risk_knowledge_base()
+        final_report = []
+
+        for risk in risks:
+            try:
+                # KEYWORDS
+                keyword_string = risk.get('keywords', '""')
+                keywords_list = [k.strip().lower() for k in keyword_string.replace('"', '').split(',') if k.strip()]
+                
+                found_keyword = False
+                for kw in keywords_list:
+                    if loan_text_lower.find(kw) != -1:
+                        found_keyword = True
+                        break 
+                
+                if not found_keyword:
+                    final_report.append({"found": False, "risk_name": risk['name'], "clause_text": "", "analysis": ""})
+                    continue 
+
+                # LLM CALL
+                prompt = f"""
+You are a legal auditor. Your job is to extract specific clauses from a loan agreement.
+You MUST respond in valid JSON format.
+
+**Target Clause:** {risk['name']}
+**Definition:** {risk.get('description', 'N/A')}
+
+**Document Text:**
+---
+{loan_text}
+---
+
+**Instructions:**
+1. Search the text for a clause matching the **Target Clause** definition.
+2. If found, extract the exact text snippet.
+3. If NOT found, return found: false.
+
+**JSON Response:**
+{{
+  "found": <true_or_false>,
+  "risk_name": "{risk['name']}",
+  "clause_text": "<quote_the_text_here_or_leave_empty>",
+  "analysis": "<brief_explanation_of_what_you_found>"
+}}
+"""
+                response_text = call_local_llm(prompt)
+                
+                # PARSING
+                json_start = response_text.find('{')
+                json_end = response_text.rfind('}') + 1
+                if json_start != -1 and json_end != -1:
+                    result_json = json.loads(response_text[json_start:json_end])
+                    if result_json.get("found") is True and not result_json.get("clause_text"):
+                         result_json["clause_text"] = "(Clause detected.)"
+                    final_report.append(result_json)
+                else:
+                    final_report.append({"found": False, "risk_name": risk['name'], "error": "Invalid JSON"})
+            except Exception as e:
+                logger.error(f"Error in ID analysis for {risk['name']}: {e}")
+                final_report.append({"found": False, "risk_name": risk['name'], "error": str(e)})
+
+        return JsonResponse({'report': final_report})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 # THIS IS YOUR *PRODUCTION* ENDPOINT (TAKES DOCUMENT ID)
 @api_view(['POST'])
 def analyze_risk_by_id(request, document_id):
