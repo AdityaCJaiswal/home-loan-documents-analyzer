@@ -7,10 +7,10 @@ import numpy as np
 import faiss
 
 # Load sentence transformer model for embeddings
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('nlpaueb/legal-bert-base-uncased')
 
 # In-memory FAISS index for vector search
-embedding_dim = 384  # Embedding size for the model
+embedding_dim = 768  # Embedding size for the model
 index = faiss.IndexFlatL2(embedding_dim)
 
 doc_embeddings_map = {}  # Maps document.id to its chunk embeddings
