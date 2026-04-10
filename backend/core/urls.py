@@ -10,7 +10,6 @@ from .views import (
     DocumentChunkListView,
     ask_question, 
     chat_history,
-    analyze_document_risks
 )
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
@@ -34,7 +33,7 @@ urlpatterns = [
     path('documents/<int:document_id>/chunks/', DocumentChunkListView.as_view(), name='document-chunks'),
     
     # --- Interceptor Endpoints ---
-    path('analyze-risks/', views.analyze_document_risks, name='analyze-risks'), # The demo one
+    
     path('document/<int:document_id>/analyze-risk/', views.analyze_risk_by_id, name='analyze-risk-by-id'), # The production one
     
     # Chat functionality

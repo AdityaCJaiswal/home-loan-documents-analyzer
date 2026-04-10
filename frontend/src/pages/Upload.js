@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload as UploadIcon, File, CheckCircle, AlertCircle, X, Scale, Shield, FileCheck } from 'lucide-react';
+import { ArrowLeft, Upload as UploadIcon, File, CheckCircle, AlertCircle, X, Scale, Shield } from 'lucide-react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -128,253 +128,164 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fafbfc] via-[#f4f6f8] to-[#e8ecf0]">
-      <div className="container mx-auto px-4 py-8">
+    <div className="space-y-12 pb-12 animate-fade-up">
+      <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Professional Header */}
         <div className="flex items-center space-x-4 mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-3 rounded-full hover:bg-white/50 transition-colors duration-200 border-2 border-gray-300"
+            className="p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 transition-colors duration-200 border border-slate-200 dark:border-slate-700 backdrop-blur-sm"
           >
-            <ArrowLeft className="h-6 w-6 text-[#1e3a5f]" />
+            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
-          <div className="flex items-center space-x-3">
-            <div className="p-4 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-2xl shadow-xl">
-              <Scale className="h-8 w-8 text-white" />
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-sky-500 dark:to-indigo-500 rounded-xl shadow-md">
+              <Scale className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-[#1e3a5f]">
-                Upload Legal Document
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                Ingest Document
               </h1>
-              <p className="text-gray-600 mt-1 font-medium">
-                Secure document upload for AI-powered legal analysis
+              <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                Securely upload files to your encrypted workspace.
               </p>
             </div>
           </div>
         </div>
 
         {/* Security Banner */}
-        <div className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#1e3a5f] p-5 rounded-xl shadow-md">
-          <div className="flex items-start space-x-4">
-            <Shield className="h-7 w-7 text-[#1e3a5f] flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-lg font-bold text-[#1e3a5f] mb-2">Secure & Confidential</h3>
-              <p className="text-gray-700 text-sm leading-relaxed">
-                Your documents are processed with enterprise-grade security. All files are encrypted during 
-                transmission and storage. We never share your legal documents with third parties.
-              </p>
-            </div>
+        <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-sky-500 flex items-start space-x-4">
+          <Shield className="h-6 w-6 text-sky-600 dark:text-sky-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Encrypted Ingestion Pipeline</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              Documents are processed with highly secure SOC2 configurations. Files are parsed strictly for vector embedding and are never transmitted to third parties.
+            </p>
           </div>
         </div>
 
         {/* Main Upload Card */}
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-2xl p-10 border-2 border-gray-200">
-            
-            {/* Upload Area */}
-            <div
-              className={`relative border-3 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
-                dragActive
-                  ? 'border-[#1e3a5f] bg-blue-50'
-                  : selectedFile
-                  ? 'border-green-400 bg-green-50'
-                  : 'border-gray-300 hover:border-[#8b5a3c] hover:bg-gray-50'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={Object.values(acceptedFormats).join(',')}
-                onChange={handleInputChange}
-                disabled={uploading}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
+        <div className="glass-panel p-8 sm:p-12 rounded-3xl">
+          
+          {/* Upload Area */}
+          <div
+            className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
+              dragActive
+                ? 'border-sky-500 bg-sky-50/50 dark:bg-sky-900/20'
+                : selectedFile
+                ? 'border-emerald-400 bg-emerald-50/50 dark:bg-emerald-900/20'
+                : 'border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500 bg-slate-50/50 dark:bg-slate-800/30'
+            }`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={Object.values(acceptedFormats).join(',')}
+              onChange={handleInputChange}
+              disabled={uploading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"
+            />
 
-              {!selectedFile ? (
-                <div className="space-y-6">
-                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] rounded-2xl flex items-center justify-center shadow-lg">
-                    <UploadIcon className="h-12 w-12 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-[#1e3a5f] mb-3">
-                      Drop your legal document here
-                    </p>
-                    <p className="text-gray-600 mb-2">
-                      or{' '}
-                      <span className="text-[#8b5a3c] font-semibold cursor-pointer hover:underline">
-                        browse files
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-500 mt-4">
-                      Supported formats: PDF, DOCX, TXT • Maximum size: 10MB
-                    </p>
-                  </div>
+            {!selectedFile ? (
+              <div className="space-y-6 animate-scale-in">
+                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700/50 rounded-2xl flex items-center justify-center shadow-sm border border-slate-200/50 dark:border-slate-600/50">
+                  <UploadIcon className="h-8 w-8 text-slate-600 dark:text-sky-400" />
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <File className="h-12 w-12 text-white" />
-                  </div>
-                  <div className="flex items-center justify-center space-x-4">
-                    <div className="text-left bg-white p-4 rounded-lg border-2 border-green-200 flex-1 max-w-md">
-                      <p className="text-lg font-bold text-[#1e3a5f] truncate">
-                        {selectedFile.name}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1 font-medium">
-                        {formatFileSize(selectedFile.size)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={removeFile}
-                      className="p-3 rounded-full hover:bg-red-100 transition-colors border-2 border-red-200"
-                    >
-                      <X className="h-6 w-6 text-red-600" />
-                    </button>
+                <div>
+                  <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    Drag and drop your contract
+                  </p>
+                  <p className="text-slate-500 dark:text-slate-400 mb-2">
+                    or{' '}
+                    <span className="text-sky-600 dark:text-sky-400 font-semibold cursor-pointer hover:underline">
+                      browse files
+                    </span>
+                  </p>
+                  <div className="flex items-center justify-center space-x-2 mt-6">
+                    <span className="badge-glass-safe">PDF</span>
+                    <span className="badge-glass-safe">DOCX</span>
+                    <span className="badge-glass-safe">TXT</span>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Upload Progress */}
-            {uploading && (
-              <div className="mt-8">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-base font-semibold text-[#1e3a5f]">
-                    Processing document...
-                  </span>
-                  <span className="text-base font-bold text-[#8b5a3c]">
-                    {uploadProgress}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden border border-gray-300">
-                  <div
-                    className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] h-3 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600 mt-2 text-center">
-                  Encrypting and uploading your document securely
-                </p>
               </div>
-            )}
-
-            {/* Success Message */}
-            {uploadSuccess && (
-              <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 rounded-xl">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-green-500 rounded-full">
-                    <CheckCircle className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-green-800">
-                      Upload Successful!
+            ) : (
+              <div className="space-y-6 animate-scale-in">
+                <div className="mx-auto w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center shadow-sm border border-emerald-200 dark:border-emerald-800/50">
+                  <File className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <div className="text-left bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-4 rounded-xl border border-emerald-200 w-full sm:w-auto min-w-[250px]">
+                    <p className="text-base font-bold text-slate-900 dark:text-white truncate">
+                      {selectedFile.name}
                     </p>
-                    <p className="text-sm text-green-700 mt-1">
-                      Redirecting to legal analysis platform...
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                      {formatFileSize(selectedFile.size)}
                     </p>
                   </div>
+                  <button
+                    onClick={removeFile}
+                    className="p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border border-red-200 dark:border-red-800/50"
+                  >
+                    <X className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  </button>
                 </div>
               </div>
             )}
-
-            {/* Error Message */}
-            {error && (
-              <div className="mt-8 p-6 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-xl">
-                <div className="flex items-start space-x-4">
-                  <div className="p-3 bg-red-500 rounded-full flex-shrink-0">
-                    <AlertCircle className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-red-800">Upload Error</p>
-                    <p className="text-sm text-red-700 mt-1">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Upload Button */}
-            {selectedFile && !uploading && !uploadSuccess && (
-              <div className="mt-8">
-                <button
-                  onClick={handleFileUpload}
-                  className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] hover:from-[#152d47] hover:to-[#1e3a5f] text-white font-bold py-5 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl text-lg flex items-center justify-center space-x-3"
-                >
-                  <UploadIcon className="h-6 w-6" />
-                  <span>Upload Document for Analysis</span>
-                </button>
-              </div>
-            )}
-
-            {/* File Format Info */}
-            <div className="mt-10 pt-8 border-t-2 border-gray-200">
-              <h3 className="text-lg font-bold text-[#1e3a5f] mb-5 flex items-center">
-                <FileCheck className="h-5 w-5 mr-2" />
-                Supported Document Formats
-              </h3>
-              <div className="grid grid-cols-3 gap-6">
-                <div className="p-5 bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-red-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
-                      <File className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-red-800 font-bold text-center text-lg">PDF</div>
-                  <div className="text-xs text-red-700 text-center mt-1 font-medium">
-                    Portable Document
-                  </div>
-                </div>
-                <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <File className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-blue-800 font-bold text-center text-lg">DOCX</div>
-                  <div className="text-xs text-blue-700 text-center mt-1 font-medium">
-                    Word Document
-                  </div>
-                </div>
-                <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-center mb-3">
-                    <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                      <File className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                  <div className="text-green-800 font-bold text-center text-lg">TXT</div>
-                  <div className="text-xs text-green-700 text-center mt-1 font-medium">
-                    Plain Text File
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
 
-        {/* Additional Info */}
-        <div className="max-w-3xl mx-auto mt-8 bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <h3 className="text-lg font-bold text-[#1e3a5f] mb-3 flex items-center">
-            <Scale className="h-5 w-5 mr-2" />
-            What Happens Next?
-          </h3>
-          <ol className="space-y-3 text-gray-700">
-            <li className="flex items-start space-x-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
-              <span>Your document is securely uploaded and encrypted</span>
-            </li>
-            <li className="flex items-start space-x-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
-              <span>AI processes and analyzes the content using advanced NLP</span>
-            </li>
-            <li className="flex items-start space-x-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-[#1e3a5f] text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
-              <span>You can chat with our legal AI about your document and run risk analysis</span>
-            </li>
-          </ol>
+          {/* Upload Progress */}
+          {uploading && (
+            <div className="mt-8 animate-fade-up">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Processing document...
+                </span>
+                <span className="text-sm font-bold text-sky-600 dark:text-sky-400">
+                  {uploadProgress}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-200 dark:border-slate-700">
+                <div
+                  className="bg-gradient-to-r from-sky-400 to-indigo-500 h-full rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {uploadSuccess && (
+            <div className="mt-8 badge-glass-safe w-full p-4 justify-start text-sm animate-fade-up">
+              <CheckCircle className="h-5 w-5 mr-3 flex-shrink-0" />
+              <span>Upload Successful! Generating FAISS Embeddings and routing to analytics pipeline...</span>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-8 badge-glass-danger w-full p-4 justify-start text-sm animate-fade-up">
+              <AlertCircle className="h-5 w-5 mr-3 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Upload Button */}
+          {selectedFile && !uploading && !uploadSuccess && (
+            <div className="mt-8 animate-fade-up">
+              <button
+                onClick={handleFileUpload}
+                className="w-full btn-premium-accent py-4 text-lg"
+              >
+                <UploadIcon className="h-5 w-5 mr-3" />
+                <span>Begin Analysis</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -95,26 +95,26 @@ export default function LoanAnalyzerDemo() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fafbfc] via-[#f4f6f8] to-[#e8ecf0]">
-      <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-12 pb-12 animate-fade-up">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Professional Header */}
         <div className="flex items-center space-x-4 mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-3 rounded-full hover:bg-white/50 transition-colors duration-200 border-2 border-gray-300"
+            className="p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-700 transition-colors duration-200 border border-slate-200 dark:border-slate-700 backdrop-blur-sm"
           >
-            <ArrowLeft className="h-6 w-6 text-[#1e3a5f]" />
+            <ArrowLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
           </button>
-          <div className="flex items-center space-x-3">
-            <div className="p-4 bg-gradient-to-br from-[#8b2e2e] to-[#a63a3a] rounded-2xl shadow-xl">
-              <Scale className="h-8 w-8 text-white" />
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-gradient-to-br from-red-600 to-red-800 dark:from-red-500 dark:to-red-900 rounded-xl shadow-md">
+              <Scale className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-[#1e3a5f]">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                 Risk Interceptor Demo
               </h1>
-              <p className="text-gray-600 mt-1 font-medium">
+              <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 Professional Loan Agreement Risk Analysis Platform
               </p>
             </div>
@@ -122,48 +122,45 @@ export default function LoanAnalyzerDemo() {
         </div>
 
         {/* Info Banner */}
-        <div className="max-w-7xl mx-auto bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-[#1e3a5f] p-6 rounded-xl shadow-md">
-          <div className="flex items-start space-x-4">
-            <ShieldAlert className="h-8 w-8 text-[#1e3a5f] flex-shrink-0 mt-1" />
-            <div>
-              <h3 className="text-lg font-bold text-[#1e3a5f] mb-2">How It Works</h3>
-              <p className="text-gray-700 leading-relaxed">
-                Our Risk Interceptor uses a curated legal knowledge base to identify predatory clauses, hidden fees, 
-                and unfair terms in loan agreements. This demo analyzes sample text against known risk patterns used 
-                by predatory lenders.
-              </p>
-            </div>
+        <div className="glass-panel rounded-2xl p-6 border-l-4 border-l-red-500 flex items-start space-x-4">
+          <ShieldAlert className="h-6 w-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">How It Works</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-4xl">
+              Our Risk Interceptor uses a curated legal knowledge base to identify predatory clauses, hidden fees, 
+              and unfair terms in loan agreements. This demo analyzes sample text against known risk patterns used 
+              by predatory lenders.
+            </p>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Input Panel */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-[#1e3a5f] flex items-center">
-                <FileText className="h-7 w-7 mr-3 text-[#8b5a3c]" />
+          <div className="glass-panel rounded-3xl p-8 shrink-0 flex flex-col h-[800px]">
+            <div className="flex items-center justify-between mb-6 shrink-0">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                <FileText className="h-6 w-6 mr-3 text-sky-600 dark:text-sky-400" />
                 Loan Agreement Text
               </h2>
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <FileCheck className="h-4 w-4" />
+              <div className="badge-glass-safe">
+                <FileCheck className="h-4 w-4 mr-2" />
                 <span>{text.length} characters</span>
               </div>
             </div>
             
             <button
               onClick={loadDemoText}
-              className="w-full mb-6 px-6 py-4 bg-gradient-to-r from-[#8b5a3c] to-[#6d4730] text-white rounded-xl font-semibold hover:from-[#6d4730] hover:to-[#5a3826] transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+              className="w-full mb-6 py-3 bg-gradient-to-r from-sky-600/10 to-indigo-600/10 dark:from-sky-500/20 dark:to-indigo-500/20 text-sky-700 dark:text-sky-300 rounded-xl font-semibold hover:from-sky-600/20 hover:to-indigo-600/20 transition-all duration-300 border border-sky-500/20 dark:border-sky-400/30 flex items-center justify-center space-x-2 shrink-0"
             >
-              <Zap className="h-5 w-5" />
+              <Zap className="h-4 w-4" />
               <span>Load Sample Predatory Loan Agreement</span>
             </button>
             
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 h-full">
               <textarea
-                className="w-full p-5 border-2 border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent bg-white text-gray-900 font-mono text-sm scrollbar-legal"
-                rows="22"
+                className="input-premium flex-1 resize-none font-mono text-sm leading-relaxed p-6"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste your loan agreement text here for professional risk analysis..."
@@ -171,16 +168,16 @@ export default function LoanAnalyzerDemo() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white rounded-xl font-semibold hover:from-[#152d47] hover:to-[#1e3a5f] disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center space-x-3"
+                className="w-full mt-6 btn-premium py-4 shrink-0 shadow-lg text-base"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin mr-3" />
                     <span>Analyzing Document...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="h-6 w-6" />
+                    <Send className="h-5 w-5 mr-3 text-sky-400" />
                     <span>Run Comprehensive Risk Analysis</span>
                   </>
                 )}
@@ -189,130 +186,127 @@ export default function LoanAnalyzerDemo() {
           </div>
 
           {/* Report Panel */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
-            <h2 className="text-2xl font-bold text-[#1e3a5f] mb-6 flex items-center">
-              <ShieldAlert className="h-7 w-7 mr-3 text-[#8b2e2e]" />
+          <div className="glass-panel rounded-3xl p-8 flex flex-col h-[800px]">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center shrink-0">
+              <ShieldAlert className="h-6 w-6 mr-3 text-red-600 dark:text-red-400" />
               Risk Analysis Report
             </h2>
             
             {error && (
-              <div className="p-5 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start space-x-3 mb-6">
-                <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-red-800 mb-1">Analysis Error</p>
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
+              <div className="badge-glass-danger w-full p-4 justify-start text-sm mb-6 shrink-0">
+                <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0" />
+                <span>{error}</span>
               </div>
             )}
 
             {isLoading && (
-              <div className="text-center py-20">
+              <div className="flex-1 flex flex-col items-center justify-center animate-fade-up">
                 <div className="relative mx-auto w-20 h-20 mb-8">
-                  <div className="spinner-legal h-20 w-20"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-sky-500 dark:border-sky-400 border-t-transparent animate-spin"></div>
+                  <ShieldAlert className="absolute inset-0 m-auto h-8 w-8 text-sky-500 dark:text-sky-400 animate-pulse" />
                 </div>
-                <p className="text-xl font-semibold text-[#1e3a5f] mb-3">
+                <p className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                   Analyzing Loan Agreement
                 </p>
-                <p className="text-gray-600">
-                  Our AI is scanning the document against our legal knowledge base...
+                <p className="text-slate-500 dark:text-slate-400 max-w-sm text-center">
+                  Our AI is scanning the document against our curated LegalBERT semantic knowledge base...
                 </p>
               </div>
             )}
 
             {!report && !isLoading && !error && (
-              <div className="text-center py-20">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6">
-                  <FileText className="h-10 w-10 text-gray-400" />
+              <div className="flex-1 flex flex-col items-center justify-center animate-fade-up">
+                <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                  <FileText className="h-8 w-8 text-slate-400" />
                 </div>
-                <p className="text-lg font-semibold text-gray-700 mb-3">
+                <p className="text-lg font-bold text-slate-900 dark:text-white mb-2">
                   Awaiting Analysis
                 </p>
-                <p className="text-gray-600 max-w-md mx-auto">
+                <p className="text-slate-500 dark:text-slate-400 max-w-sm text-center text-sm">
                   Load the sample text or paste your own loan agreement, then click "Run Analysis" to identify potential risks.
                 </p>
               </div>
             )}
 
             {report && (
-              <div className="space-y-8 scrollbar-legal overflow-y-auto max-h-[600px]">
+              <div className="flex-1 overflow-y-auto pr-2 space-y-6 animate-fade-up">
                 {/* Critical Risks */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-red-200">
-                    <h3 className="text-2xl font-bold text-[#8b2e2e] flex items-center space-x-2">
-                      <ShieldAlert className="h-7 w-7" />
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-bold text-red-700 dark:text-red-400 flex items-center space-x-2">
+                      <ShieldAlert className="h-5 w-5" />
                       <span>Critical Risks Detected</span>
                     </h3>
-                    <span className="px-5 py-2 bg-red-100 text-red-800 rounded-full font-bold text-xl border-2 border-red-200">
-                      {foundRisks.length}
+                    <span className="px-3 py-1 bg-red-100/50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full font-bold text-sm border border-red-200 dark:border-red-800/50">
+                      {foundRisks.length} Issues
                     </span>
                   </div>
                   
                   {foundRisks.length > 0 ? (
                     <div className="space-y-4">
                       {foundRisks.map((risk, index) => (
-                        <div key={index} className="group relative bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-600 p-5 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-                          <div className="flex items-start justify-between mb-3">
-                            <strong className="text-lg text-red-900 font-bold flex items-center">
-                              <AlertTriangle className="h-5 w-5 mr-2 flex-shrink-0" />
+                        <div key={index} className="group relative bg-white/60 dark:bg-slate-800/60 backdrop-blur-md border border-red-200/50 dark:border-red-900/50 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                          <div className="flex items-start justify-between mb-4">
+                            <strong className="text-base text-slate-900 dark:text-white font-bold flex items-center">
+                              <AlertTriangle className="h-5 w-5 mr-3 text-red-500 flex-shrink-0" />
                               {risk.risk_name}
                             </strong>
                             <button
                               onClick={() => copyToClipboard(JSON.stringify(risk, null, 2), `risk-${index}`)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-red-200 rounded"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-500"
                             >
                               {copiedMessageId === `risk-${index}` ? (
-                                <CheckCircle className="h-4 w-4 text-red-800" />
+                                <CheckCircle className="h-4 w-4 text-emerald-500" />
                               ) : (
-                                <Copy className="h-4 w-4 text-red-700" />
+                                <Copy className="h-4 w-4" />
                               )}
                             </button>
                           </div>
-                          <div className="space-y-3 pl-7">
-                            <div className="bg-white/80 p-4 rounded-lg border border-red-200">
-                              <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Predatory Clause Identified:</p>
-                              <p className="text-sm text-red-900 italic font-medium">"{risk.clause_text}"</p>
+                          <div className="space-y-3 pl-8">
+                            <div className="bg-red-50/50 dark:bg-red-900/10 p-4 rounded-xl border border-red-100 dark:border-red-900/30">
+                              <p className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-2">Predatory Clause Identified</p>
+                              <p className="text-sm text-slate-800 dark:text-slate-300 italic font-medium leading-relaxed">"{risk.clause_text}"</p>
                             </div>
-                            <div className="bg-white/60 p-4 rounded-lg border border-red-200">
-                              <p className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Legal Analysis:</p>
-                              <p className="text-sm text-red-800 leading-relaxed">{risk.analysis}</p>
+                            <div className="bg-slate-50/50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700/50">
+                              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Legal Analysis</p>
+                              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-light">{risk.analysis}</p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-green-50 border-l-4 border-green-500 p-5 rounded-lg">
-                      <p className="text-green-800 font-medium flex items-center">
-                        <CheckCircle className="h-5 w-5 mr-2" />
-                        No critical predatory risks identified in this document
-                      </p>
+                    <div className="badge-glass-safe w-full p-4 justify-start text-sm">
+                      <CheckCircle className="h-5 w-5 mr-3 flex-shrink-0" />
+                      <span>No critical predatory risks identified by the ML pipeline</span>
                     </div>
                   )}
                 </div>
 
                 {/* Passed Checks */}
-                <div className="space-y-3 bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
+                <div className="mt-8">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-green-800 flex items-center space-x-2">
-                      <ShieldCheck className="h-6 w-6" />
+                    <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 flex items-center space-x-2">
+                      <ShieldCheck className="h-5 w-5" />
                       <span>Compliance Checks Passed</span>
                     </h3>
-                    <span className="px-4 py-2 bg-green-200 text-green-900 rounded-full font-bold text-lg border-2 border-green-300">
-                      {passedRisks.length}
+                    <span className="px-3 py-1 bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full font-bold text-sm border border-emerald-200 dark:border-emerald-800/50">
+                      {passedRisks.length} Checks
                     </span>
                   </div>
                   
                   {passedRisks.length > 0 ? (
-                    <ul className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-2">
                       {passedRisks.map((risk, index) => (
-                        <li key={index} className="flex items-center space-x-3 bg-white/80 p-4 rounded-lg border border-green-200">
-                          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                          <span className="text-sm text-green-900 font-medium">{risk.risk_name}</span>
-                        </li>
+                        <div key={index} className="flex items-center space-x-3 bg-white/40 dark:bg-slate-800/40 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                          <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                          <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{risk.risk_name}</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   ) : (
-                    <p className="text-green-700 text-sm">No compliance checks were performed on this document.</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm italic">No valid compliance checks were completed on this document block.</p>
                   )}
                 </div>
               </div>
@@ -322,12 +316,12 @@ export default function LoanAnalyzerDemo() {
         </div>
 
         {/* Footer Info */}
-        <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md border border-gray-200 p-6">
+        <div className="glass-panel rounded-2xl p-6">
           <div className="flex items-start space-x-4">
-            <Scale className="h-8 w-8 text-[#1e3a5f] flex-shrink-0" />
+            <Scale className="h-6 w-6 text-slate-400 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="text-lg font-bold text-[#1e3a5f] mb-2">Legal Disclaimer</h3>
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">Legal Disclaimer</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
                 This tool provides AI-powered analysis based on a curated knowledge base of known predatory lending practices. 
                 Results should be reviewed by qualified legal professionals. This demo is for educational purposes and does not 
                 constitute legal advice. Always consult with a licensed attorney for specific legal matters.

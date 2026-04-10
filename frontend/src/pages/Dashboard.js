@@ -74,258 +74,225 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fafbfc] via-[#f4f6f8] to-[#e8ecf0]">
-      <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="space-y-12 pb-12">
+      
+      {/* 
+        ========================================================
+        HERO SECTION 
+        ========================================================
+      */}
+      <section className="text-center space-y-6 py-16 animate-fade-up">
+        <div className="inline-flex items-center justify-center p-2 mb-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
+          <div className="p-3 bg-gradient-to-br from-slate-900 to-slate-800 dark:from-sky-500 dark:to-indigo-500 rounded-xl shadow-inner">
+            <Scale className="h-8 w-8 text-white" />
+          </div>
+        </div>
+        <h1 className="text-gradient">
+          Legal Document Intelligence
+        </h1>
+        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+          Analyze complex loan agreements, surface predatory compliance risks, and make informed decisions instantly.
+        </p>
         
-        {/* Professional Legal Header */}
-        <div className="text-center space-y-6 py-12">
-          <div className="flex items-center justify-center space-x-4 mb-4">
-            <div className="p-4 bg-gradient-to-br from-blue-700 to-blue-600 rounded-2xl shadow-xl">
-              <Scale className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold text-blue-800" style={{letterSpacing: '-0.02em'}}>
-              Redline AI
-            </h1>
+        <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+          <div className="badge-glass-safe">
+            <Shield className="h-4 w-4 mr-2" />
+            SOC2 Compliant Framework
           </div>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-            Professional Legal Document Intelligence Platform
-          </p>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Analyze loan agreements, identify risk clauses, and make informed decisions with AI-powered insights
-          </p>
-          <div className="flex items-center justify-center space-x-8 mt-6 text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-green-600" />
-              <span className="font-medium">Secure Analysis</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              <span className="font-medium">AI-Verified</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Scale className="h-5 w-5 text-green-600" />
-              <span className="font-medium">Legal Compliance</span>
-            </div>
+          <div className="badge-glass-safe">
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            AI-Verified Extractions
           </div>
         </div>
+      </section>
 
-        {/* Professional Action Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Upload Document */}
-          <Link to="/upload" className="group transform transition-all duration-300 hover:-translate-y-2">
-            <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 hover:border-blue-600 p-8 h-full transition-all duration-300">
-              <div className="flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="p-4 bg-gradient-to-br from-blue-700 to-blue-600 rounded-xl group-hover:shadow-lg transition-shadow">
-                      <Upload className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-blue-800">Upload Document</h3>
-                      <p className="text-gray-600 text-sm mt-1">Add to your library</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Securely upload loan agreements, contracts, and legal documents for AI-powered analysis
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 text-green-600 mt-6 font-medium">
-                  <Briefcase className="h-5 w-5" />
-                  <span className="text-sm">Professional Processing</span>
-                </div>
+      {/* 
+        ========================================================
+        CORE ACTIONS GRID
+        ========================================================
+      */}
+      <section className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto animate-fade-up delay-75">
+        
+        {/* Upload Action */}
+        <Link to="/upload" className="block h-full cursor-pointer focus:outline-none focus:ring-4 focus:ring-sky-500/20 rounded-2xl">
+          <div className="glass-card-interactive h-full p-8 flex flex-col justify-between group">
+            <div>
+              <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700/50 rounded-2xl flex items-center justify-center mb-6 border border-slate-200/50 dark:border-slate-600/50 shadow-sm transition-transform group-hover:scale-110">
+                <Upload className="h-6 w-6 text-slate-700 dark:text-sky-400" />
               </div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Ingest Contracts</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                Securely upload loan agreements and MSAs into your encrypted workspace.
+              </p>
             </div>
-          </Link>
-
-          {/* Browse Library */}
-          <div 
-            className="group cursor-pointer transform transition-all duration-300 hover:-translate-y-2" 
-            onClick={() => document.getElementById('documents-section').scrollIntoView({ behavior: 'smooth' })}
-          >
-            <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 hover:border-cyan-600 p-8 h-full transition-all duration-300">
-              <div className="flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="p-4 bg-gradient-to-br from-cyan-600 to-cyan-500 rounded-xl group-hover:shadow-lg transition-shadow">
-                      <FolderOpen className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-blue-800">Document Library</h3>
-                      <p className="text-gray-600 text-sm mt-1">Browse your collection</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">
-                    Access your complete document repository with intelligent search and organization
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 text-cyan-700 mt-6 font-medium">
-                  <FileText className="h-5 w-5" />
-                  <span className="text-sm">{totalDocuments} documents available</span>
-                </div>
-              </div>
+            <div className="mt-8 flex items-center text-sm font-medium text-sky-600 dark:text-sky-400">
+              Upload New Document <Briefcase className="h-4 w-4 ml-2" />
             </div>
-          </div>
-
-          {/* Risk Analyzer */}
-          <Link to="/loan-demo" className="group transform transition-all duration-300 hover:-translate-y-2">
-            <div className="bg-gradient-to-br from-red-600 to-red-500 rounded-2xl shadow-lg border-2 border-red-600 p-8 h-full transition-all duration-300 hover:shadow-2xl text-white">
-              <div className="flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="p-4 bg-white/20 rounded-xl group-hover:bg-white/30 transition-colors backdrop-blur-sm">
-                      <ShieldAlert className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold">Risk Interceptor</h3>
-                      <p className="text-red-100 text-sm mt-1">Advanced Analysis</p>
-                    </div>
-                  </div>
-                  <p className="text-red-50 text-sm leading-relaxed">
-                    Identify predatory clauses and hidden risks in loan agreements using our AI-powered knowledge base
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 mt-6 font-medium">
-                  <AlertTriangle className="h-5 w-5 text-yellow-300" />
-                  <span className="text-sm text-red-50">Instant Risk Detection</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        {/* Professional Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-blue-700 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-3xl font-bold text-blue-800">{totalDocuments}</p>
-                <p className="text-gray-600 font-medium mt-1">Total Documents</p>
-                <p className="text-xs text-gray-500 mt-2">In your legal library</p>
-              </div>
-              <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl">
-                <FileText className="h-8 w-8 text-blue-700" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-green-600 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-3xl font-bold text-green-700">{recentDocuments}</p>
-                <p className="text-gray-600 font-medium mt-1">Recent Uploads</p>
-                <p className="text-xs text-gray-500 mt-2">This week</p>
-              </div>
-              <div className="p-4 bg-gradient-to-br from-green-100 to-green-50 rounded-xl">
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-cyan-600 hover:shadow-lg transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-3xl font-bold text-cyan-700">{totalPages.toLocaleString()}</p>
-                <p className="text-gray-600 font-medium mt-1">Pages Analyzed</p>
-                <p className="text-xs text-gray-500 mt-2">Across all documents</p>
-              </div>
-              <div className="p-4 bg-gradient-to-br from-cyan-100 to-cyan-50 rounded-xl">
-                <BarChart3 className="h-8 w-8 text-cyan-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Documents Section */}
-        <div id="documents-section" className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-200 p-8">
             
-            {/* Search and Controls */}
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 pb-6 border-b-2 border-gray-200">
-              <div>
-                <h2 className="text-3xl font-bold text-blue-800 mb-2">Document Repository</h2>
-                <p className="text-gray-600">Manage your legal document collection with intelligent analysis</p>
-              </div>
+            {/* Hover Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/0 via-sky-500/0 to-sky-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
+        </Link>
 
-              <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                <div className="relative flex-1 lg:w-80">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search documents..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent bg-white text-gray-900"
-                  />
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <Filter className="h-5 w-5 text-gray-400" />
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="border-2 border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-600 focus:border-transparent bg-white text-gray-900 font-medium"
-                  >
-                    <option value="recent">Most Recent</option>
-                    <option value="name">Name (A-Z)</option>
-                  </select>
-                </div>
+        {/* Library Action */}
+        <div 
+          role="button"
+          tabIndex={0}
+          onClick={() => document.getElementById('documents-section').scrollIntoView({ behavior: 'smooth' })}
+          className="block h-full cursor-pointer focus:outline-none focus:ring-4 focus:ring-sky-500/20 rounded-2xl"
+        >
+          <div className="glass-card-interactive h-full p-8 flex flex-col justify-between group">
+            <div>
+              <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700/50 rounded-2xl flex items-center justify-center mb-6 border border-slate-200/50 dark:border-slate-600/50 shadow-sm transition-transform group-hover:scale-110">
+                <FolderOpen className="h-6 w-6 text-slate-700 dark:text-indigo-400" />
               </div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Knowledge Base</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                Search and review active agreements in your intelligent repository.
+              </p>
             </div>
-
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
-                <div className="flex items-center">
-                  <AlertTriangle className="h-5 w-5 text-red-600 mr-3" />
-                  <p className="text-red-700 font-medium">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Documents Grid */}
-            {filteredDocuments.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6">
-                  <FileText className="h-12 w-12 text-gray-400" />
-                </div>
-                <h3 className="text-2xl font-bold text-blue-800 mb-3">
-                  {searchTerm ? 'No documents found' : 'Your legal library awaits'}
-                </h3>
-                <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  {searchTerm 
-                    ? 'Try adjusting your search terms or browse all documents'
-                    : 'Upload your first legal document and begin intelligent risk analysis'
-                  }
-                </p>
-                {!searchTerm && (
-                  <Link to="/upload" className="inline-flex items-center space-x-3 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
-                    <Plus className="h-5 w-5" />
-                    <span>Upload Your First Document</span>
-                    <Scale className="h-5 w-5" />
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <FileCheck className="h-6 w-6 text-green-600" />
-                    <span className="text-lg font-semibold text-blue-800">
-                      {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} ready for analysis
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid gap-6">
-                  {filteredDocuments.map((document) => (
-                    <LegalDocumentCard key={document.id} document={document} />
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="mt-8 flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400">
+              View {totalDocuments} Files <FileText className="h-4 w-4 ml-2" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/0 via-indigo-500/0 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </div>
         </div>
-      </div>
+
+        {/* Interceptor Action */}
+        <Link to="/loan-demo" className="block h-full cursor-pointer focus:outline-none focus:ring-4 focus:ring-red-500/20 rounded-2xl">
+          <div className="glass-card-interactive h-full p-8 flex flex-col justify-between group !border-red-200/50 dark:!border-red-900/30">
+            <div>
+              <div className="w-14 h-14 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/10 rounded-2xl flex items-center justify-center mb-6 border border-red-200/50 dark:border-red-800/50 shadow-sm transition-transform group-hover:scale-110">
+                <ShieldAlert className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Risk Interceptor</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                Run an autonomous ML audit to surface predatory clauses instantly.
+              </p>
+            </div>
+            <div className="mt-8 flex items-center text-sm font-medium text-red-600 dark:text-red-400">
+              Launch Audit <AlertTriangle className="h-4 w-4 ml-2" />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-red-500/0 via-red-500/0 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </div>
+        </Link>
+      </section>
+
+      {/* 
+        ========================================================
+        STATISTICS 
+        ========================================================
+      */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto animate-fade-up delay-150">
+        <div className="glass-card p-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Vault</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">{totalDocuments}</p>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+            <FileText className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+          </div>
+        </div>
+
+        <div className="glass-card p-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Weekly Ingest</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">{recentDocuments}</p>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center border border-emerald-100 dark:border-emerald-800/30">
+            <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+          </div>
+        </div>
+
+        <div className="glass-card p-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pages Parsed</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">{totalPages.toLocaleString()}</p>
+          </div>
+          <div className="w-12 h-12 rounded-full bg-sky-50 dark:bg-sky-900/20 flex items-center justify-center border border-sky-100 dark:border-sky-800/30">
+            <BarChart3 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        ========================================================
+        DOCUMENT REPOSITORY
+        ========================================================
+      */}
+      <section id="documents-section" className="max-w-7xl mx-auto animate-fade-up delay-300 scroll-mt-24">
+        <div className="glass-panel rounded-3xl p-8">
+          
+          {/* Header & Controls */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8 border-b border-slate-200 dark:border-slate-700/50 pb-6">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Repository</h2>
+              <p className="text-slate-500 dark:text-slate-400">Secure overview of active contracts.</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <div className="relative flex-1 lg:w-80">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search repository..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="input-premium pl-12"
+                />
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="input-premium appearance-none pr-10 font-medium"
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="name">Alphabetical</option>
+                </select>
+                <Filter className="absolute right-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div className="badge-glass-danger px-4 py-3 mb-6 w-full justify-start text-sm">
+              <AlertTriangle className="h-5 w-5 mr-3 flex-shrink-0" />
+              {error}
+            </div>
+          )}
+
+          {/* Grid Content */}
+          {filteredDocuments.length === 0 ? (
+            <div className="text-center py-24 px-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/20 border border-dashed border-slate-200 dark:border-slate-700">
+              <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-slate-100 dark:border-slate-700">
+                <FileText className="h-8 w-8 text-slate-400" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                {searchTerm ? 'No matches found' : 'Your vault is empty'}
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
+                {searchTerm 
+                  ? 'Adjust your search parameters.'
+                  : 'Start by uploading a legal document for automated ingestion.'
+                }
+              </p>
+              {!searchTerm && (
+                <Link to="/upload" className="btn-premium-accent">
+                  <Upload className="h-4 w-4 mr-2" /> Ingest Document
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredDocuments.map((document) => (
+                <LegalDocumentCard key={document.id} document={document} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 };

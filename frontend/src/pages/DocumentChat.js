@@ -60,61 +60,69 @@ const DocumentChat = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-120px)] flex">
+    <div className="h-[calc(100vh-120px)] flex gap-6 mt-4 mb-8">
       {/* Document Info Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 p-6 overflow-y-auto">
-        <div className="flex items-center space-x-3 mb-6">
+      <div className="w-80 glass-panel rounded-3xl p-6 flex flex-col h-full animate-fade-up shrink-0">
+        <div className="flex items-center space-x-3 mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-md"
+            className="p-2.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-white/50 dark:bg-slate-800/50 rounded-xl hover:shadow-sm border border-slate-200 dark:border-slate-700 transition-all duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-semibold text-gray-900">Document Details</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">File Details</h2>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8 flex-1 overflow-y-auto pr-2 scrollbar-legal">
           {/* Document Title */}
           <div>
-            <div className="flex items-center space-x-3 mb-3">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900 text-sm">
+            <div className="flex items-start space-x-4 mb-4 p-4 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/80 dark:to-slate-900/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
+              <div className="p-2.5 bg-gradient-to-br from-sky-500 to-indigo-500 rounded-xl shadow-md shrink-0 mt-1">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base truncate">
                   {document.title || document.filename}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  {document.file_type?.toUpperCase()}
-                </p>
+                <span className="badge-glass-safe mt-2 inline-block">
+                  {document.file_type?.toUpperCase() || 'PDF'}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Metadata */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3 text-sm">
-              <Calendar className="h-4 w-4 text-gray-400" />
+          <div className="space-y-4 px-2">
+            <div className="flex items-center space-x-4 text-sm group">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform">
+                <Calendar className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              </div>
               <div>
-                <p className="text-gray-500">Uploaded</p>
-                <p className="text-gray-900">{formatDate(document.uploaded_at)}</p>
+                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Uploaded</p>
+                <p className="text-slate-900 dark:text-slate-200 font-medium">{formatDate(document.uploaded_at)}</p>
               </div>
             </div>
 
             {document.pages && (
-              <div className="flex items-center space-x-3 text-sm">
-                <Hash className="h-4 w-4 text-gray-400" />
+              <div className="flex items-center space-x-4 text-sm group">
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform">
+                  <Hash className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                </div>
                 <div>
-                  <p className="text-gray-500">Pages</p>
-                  <p className="text-gray-900">{document.pages}</p>
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Pages</p>
+                  <p className="text-slate-900 dark:text-slate-200 font-medium">{document.pages}</p>
                 </div>
               </div>
             )}
 
             {document.file_size && (
-              <div className="flex items-center space-x-3 text-sm">
-                <ExternalLink className="h-4 w-4 text-gray-400" />
+              <div className="flex items-center space-x-4 text-sm group">
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 group-hover:scale-110 transition-transform">
+                  <ExternalLink className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                </div>
                 <div>
-                  <p className="text-gray-500">Size</p>
-                  <p className="text-gray-900">
+                  <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Size</p>
+                  <p className="text-slate-900 dark:text-slate-200 font-medium">
                     {(document.file_size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
@@ -123,24 +131,22 @@ const DocumentChat = () => {
           </div>
 
           {/* Example Questions */}
-          <div className="border-t pt-6">
-            <h4 className="font-medium text-gray-900 mb-3">Example Questions</h4>
-            <div className="space-y-2">
+          <div className="pt-8 border-t border-slate-200/50 dark:border-slate-700/50 px-2">
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Ask AI Assistant</h4>
+            <div className="space-y-2.5">
               {[
-                "What is this document about?",
-                "Summarize the main points",
-                "What are the key findings?",
-                "Who is the CEO of Amazon?",
-                "What is the capital of Spain?",
-                "How does the internet work?"
+                "Analyze the key terms in this document.",
+                "Summarize the main obligations.",
+                "Are there any penalty clauses?",
+                "Identify termination conditions.",
               ].map((question, index) => (
                 <button
                   key={index}
                   onClick={() => sendMessage(question)}
-                  className="w-full text-left p-2 text-xs text-blue-600 hover:bg-blue-50 rounded border border-blue-200 transition-colors"
+                  className="w-full text-left p-3 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white/40 dark:bg-slate-800/40 hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-700 dark:hover:text-sky-400 rounded-xl border border-slate-200/50 dark:border-slate-700/50 transition-all duration-200 shadow-sm disabled:opacity-50"
                   disabled={chatLoading}
                 >
-                  {question}
+                  "{question}"
                 </button>
               ))}
             </div>
@@ -149,15 +155,13 @@ const DocumentChat = () => {
       </div>
 
       {/* Chat Interface */}
-      <div className="flex-1 bg-gray-50">
-        <div className="h-full bg-white">
-          <ChatInterface
-            documentId={id}
-            messages={messages}
-            onSendMessage={sendMessage}
-            loading={chatLoading}
-          />
-        </div>
+      <div className="flex-1 glass-panel rounded-3xl overflow-hidden shadow-xl animate-fade-up flex flex-col delay-75 h-full">
+        <ChatInterface
+          documentId={id}
+          messages={messages}
+          onSendMessage={sendMessage}
+          loading={chatLoading}
+        />
       </div>
     </div>
   );
