@@ -1,73 +1,115 @@
-import pandas as pd
-import numpy as np
-from sentence_transformers import SentenceTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
-import time
+"""
+evaluate_model.py
+=================
+Evaluates the pre-trained XGBoost multiclass severity classifier
+(risk_classifier.pkl) on labeled_clauses.csv.
+"""
+
+import ast
 import warnings
-warnings.filterwarnings('ignore')
 
-print("1. Loading the CUAD dataset...")
-df = pd.read_csv('master_clauses.csv')
+import joblib
+import numpy as np
+import pandas as pd
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics import classification_report, confusion_matrix
 
-risky_categories = ['Uncapped Liability', 'Non-Compete', 'Liquidated Damages', 'Exclusivity', 'Price Restriction']
-safe_categories = ['Governing Law', 'Parties', 'License Grant']
+warnings.filterwarnings("ignore")
 
-extracted_data = []
+# ── Config ────────────────────────────────────────────────────────────────────
+DATA_PATH      = "test_clauses.csv"
+MODEL_PATH     = "risk_classifier.pkl"
+EMBED_MODEL    = "nlpaueb/legal-bert-base-uncased"
+LABEL_ORDER    = ["Safe", "Low", "Medium", "High"]
+# ─────────────────────────────────────────────────────────────────────────────
 
-for index, row in df.iterrows():
-    for category in risky_categories:
-        if category in df.columns and str(row[category]).lower() != 'nan' and len(str(row[category])) > 20:
-            extracted_data.append({'text': str(row[category]), 'is_predatory': 1})
+
+def load_and_clean(path: str) -> pd.DataFrame:
+    """Load CSV, drop nulls, extract plain text from list-wrapped Clause_Text."""
+    print(f"\n[1/4] Loading dataset from '{path}' ...")
+    df = pd.read_csv(path)
+
+    required = {"Clause_Type", "Clause_Text", "Severity_Label"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing columns in CSV: {missing}")
+
+    df = df.dropna(subset=["Clause_Text", "Severity_Label"]).copy()
+
+    # Clause_Text is stored as a Python list string, e.g. "['some text', '...']"
+    def extract_text(raw):
+        try:
+            items = ast.literal_eval(str(raw))
+            if isinstance(items, list):
+                return " ".join(str(i) for i in items)
+        except Exception:
+            pass
+        return str(raw)
+
+    df["clean_text"] = df["Clause_Text"].apply(extract_text)
+
+    # Prefix clause type so the model learns type-specific patterns
+    df["input_text"] = df["Clause_Type"].fillna("Unknown") + " [SEP] " + df["clean_text"]
+
+    # Normalise label casing
+    df["Severity_Label"] = df["Severity_Label"].str.strip().str.capitalize()
+    df = df[df["Severity_Label"].isin(LABEL_ORDER)]
+
+    # Remove very short texts (likely parse failures)
+    df = df[df["clean_text"].str.len() > 20].drop_duplicates(subset=["clean_text"])
+
+    print(f"    [OK] {len(df):,} valid clauses retained.")
+    return df.reset_index(drop=True)
+
+
+def generate_embeddings(texts: list[str]) -> np.ndarray:
+    """Generate LegalBERT sentence embeddings with NaN guard."""
+    print(f"\n[2/4] Generating LegalBERT embeddings for {len(texts):,} clauses ...")
+    encoder = SentenceTransformer(EMBED_MODEL)
+    X = encoder.encode(texts, show_progress_bar=True, batch_size=32)
+    X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+    print(f"    [OK] Embedding matrix shape: {X.shape}")
+    return X
+
+
+def evaluate():
+    print("=" * 65)
+    print("  Severity Classifier Evaluation  (XGBoost + LegalBERT)")
+    print("=" * 65)
     
-    for category in safe_categories:
-        if category in df.columns and str(row[category]).lower() != 'nan' and len(str(row[category])) > 20:
-            extracted_data.append({'text': str(row[category]), 'is_predatory': 0})
+    # 1. Load data
+    df = load_and_clean(DATA_PATH)
+    
+    # 2. Load Model & LabelEncoder
+    print(f"\n[3/4] Loading model and label encoder from '{MODEL_PATH}' ...")
+    bundle = joblib.load(MODEL_PATH)
+    clf = bundle["model"]
+    le = bundle["label_encoder"]
+    
+    # Only keep rows where the severity label is known to the model
+    valid_labels = set(le.classes_)
+    df = df[df["Severity_Label"].isin(valid_labels)].reset_index(drop=True)
+    
+    # Extract ground truth labels using the label encoder
+    y_true = le.transform(df["Severity_Label"])
+    
+    # 3. Generate Embeddings
+    X = generate_embeddings(df["input_text"].tolist())
+    
+    # 4. Evaluate
+    print("\n[4/4] Evaluating on the dataset ...")
+    y_pred = clf.predict(X)
+    
+    print("\n── Evaluation Classification Report ──────────────────────────────")
+    print(classification_report(y_true, y_pred, target_names=le.classes_))
+    
+    print("── Confusion Matrix (rows=True, cols=Predicted) ─────────────────────")
+    cm = confusion_matrix(y_true, y_pred, labels=range(len(le.classes_)))
+    header = f"{'':10}" + "  ".join(f"{c:>8}" for c in le.classes_)
+    print(header)
+    for i, row in enumerate(cm):
+        print(f"{le.classes_[i]:10}" + "  ".join(f"{v:>8}" for v in row))
 
-clean_df = pd.DataFrame(extracted_data).drop_duplicates(subset=['text']).sample(frac=1, random_state=42).reset_index(drop=True)
 
-texts = clean_df['text'].tolist()
-labels = clean_df['is_predatory'].tolist()
-
-print("2. Generating vector embeddings...")
-encoder = SentenceTransformer('all-MiniLM-L6-v2')
-X = encoder.encode(texts)
-X = np.nan_to_num(X)
-y = np.array(labels)
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-print("3. Training the Random Forest model on 80% of the data...")
-# Random Forest inherently handles imbalanced data much better without becoming "paranoid"
-clf = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
-clf.fit(X_train, y_train)
-
-print("\n" + "="*50)
-print(" 📊 REDLINE AI: MODEL PERFORMANCE REPORT 📊")
-print("="*50)
-
-start_time = time.time()
-predictions = clf.predict(X_test)
-end_time = time.time()
-
-time_taken = end_time - start_time
-clauses_tested = len(X_test)
-speed_per_clause = time_taken / clauses_tested if clauses_tested > 0 else 0
-
-print(f"\n⚡ EFFICIENCY (SPEED)")
-print(f"- Processed {clauses_tested} unseen clauses in: {time_taken:.4f} seconds")
-
-accuracy = accuracy_score(y_test, predictions)
-print(f"\n🎯 OVERALL ACCURACY: {accuracy * 100:.2f}%")
-
-print("\n📈 DETAILED METRICS (Precision & Recall):")
-print(classification_report(y_test, predictions, target_names=['Safe Clause', 'Predatory Risk']))
-
-print("\n🧩 CONFUSION MATRIX:")
-cm = confusion_matrix(y_test, predictions)
-print(f"True Negatives (Correctly marked Safe): {cm[0][0]}")
-print(f"False Positives (Falsely flagged as Risk): {cm[0][1]}")
-print(f"False Negatives (Missed a real Risk): {cm[1][0]}")
-print(f"True Positives (Correctly caught Risk): {cm[1][1]}")
-print("="*50)
+if __name__ == "__main__":
+    evaluate()

@@ -16,7 +16,7 @@ Redline AI is a full-stack web application designed for the high-stakes analysis
 
 * **Hybrid Analysis Platform:** Combines an LLM comprehension chat and a dedicated ML Interceptor.
 * **1. Comprehension Engine (RAG Chat):** Upload any PDF, DOCX, or TXT file and ask specific questions. The AI provides answers 100% grounded in the document's text, eliminating hallucinations.
-* **2. Interrogation Engine (Risk Interceptor):** Powered by an autonomous SCiKit-Learn model (`LogisticRegression`) trained on the CUAD legal dataset. Provides a one-click analysis that deeply maps and flags risky structures within seconds.
+* **2. Interrogation Engine (Risk Interceptor):** Powered by an autonomous SCiKit-Learn model (`LogisticRegression`) trained on the CUAD legal dataset. Provides a one-click analysis that deeply maps and flags risky structures into four severity levels (Safe, Low, Medium, High) within seconds.
 * **Local-First & Secure:** Built from the ground up for privacy. All AI processing (both embeddings and generation) runs **100% locally** using a local LLM (like Mistral). Your confidential documents are never sent to a third-party API.
 * **Domain Context:** We leverage `nlpaueb/legal-bert-base-uncased` to fully comprehend complex 'legalese' nuances.
 * **Modern Enterprise UI:** Complete end-to-end interface overhauled with a stunning 'Glassmorphic' TailwindCSS design.
@@ -42,8 +42,8 @@ This is the "Chat Assistant" tab. It's a classic Retrieval-Augmented Generation 
 This is the "Risk Analysis" tab. Built purely for strict clause-checking, this leverages a robust **Logistic Regression** model for its heavy lifting:
 
 1. **ML Classification Preparation:** A model (`risk_classifier.pkl`) is generated locally by training a `LogisticRegression` algorithm on a massive real-world dataset grouping safe vs. predatory clauses (such as the CUAD database).
-2. **Chunking & Legal Vectorization:** The uploaded document is split into tightly intertwined 150-word chunks. They are embedded via the 768-dimensional `LegalBERT`.
-3. **Autonomous Risk Flagging:** The ML model rapidly maps and assesses the chunks, outputting a highly deterministic 0 (safe) or 1 (predatory).
+2. **Chunking & Legal Vectorization:** The uploaded document is dynamically split into individual, clause-level chunks. They are embedded via the 768-dimensional `LegalBERT`.
+3. **Autonomous Risk Flagging:** The ML model rapidly maps and assesses the chunks, classifying each clause into a highly deterministic severity level (Safe, Low, Medium, High).
 4. **Targeted Formatting:** Any chunk deemed actively predatory is handed cleanly to the local LLM to surgically parse the risk name and exactly *why* it's bad, returning structured JSON directly back to the front-end.
 
 This multi-tiered structure completely mitigates the problem of LLM hallucinations while avoiding burning unnecessary cycles on inherently "clean" documents.
@@ -102,13 +102,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # 4. Supply Required Dataset (Optional for immediate usage but highly recommended)
-# Place the CUAD `master_clauses.csv` into the `backend/` directory for full training.
+# Place the `labeled_clauses.csv` dataset into the `backend/` directory for full training.
 
 # 5. Run the database migrations
 python manage.py migrate
 
-# 6. Train the Logistic Regression model (CRITICAL! Do this once to create risk_classifier.pkl)
-python train_classifier.py
+# 6. Train the Multiclass Logistic Regression model (CRITICAL! Do this once to create risk_classifier2.pkl)
+python train_logistic.py
 
 # 7. Start the Django server
 # (Leave this terminal running)
@@ -150,13 +150,13 @@ You can now use the app by navigating to `http://localhost:3000` in your browser
 
 The core logic powering the Interceptor can be expanded by enhancing the Logistic Regression pipeline. 
 
-1. Gather new diverse legal clause data sets and merge them securely into `master_clauses.csv`.
-2. Map your relevant categorization lists mapping what you consider 'Risky' versus 'Safe' in `train_classifier.py`.
+1. Gather new diverse legal clause data sets and merge them securely into `labeled_clauses.csv`.
+2. Map your relevant categorization lists grouping severities (Safe, Low, Medium, High) in `train_logistic.py`.
 3. Stop the backend server and re-run:
 ```bash
-python train_classifier.py
+python train_logistic.py
 ```
-4. This reconstructs `risk_classifier.pkl`, vastly broadening what the model recognizes in embedded text going forward.
+4. This reconstructs `risk_classifier2.pkl`, vastly broadening what the model recognizes in embedded text going forward.
 
 ---
 
